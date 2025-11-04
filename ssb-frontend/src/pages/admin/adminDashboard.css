@@ -1,0 +1,60 @@
+.dashboard-grid {
+  display: grid;
+  /* Đây là mấu chốt: tạo lưới 3 cột */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Tùy chỉnh cho các thẻ stat nhỏ */
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+.stat-title {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.stat-value {
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 700;
+}
+.stat-chart {
+  width: 100px; /* Kích thước cho biểu đồ mini */
+}
+
+
+/* Các lớp tiện ích để gộp ô */
+.grid-col-span-2 {
+  grid-column: span 2;
+}
+.grid-col-span-3 {
+  grid-column: span 3;
+}
+.grid-row-span-2 {
+  grid-row: span 2;
+}
+
+/* Cần điều chỉnh lại bảng trong Card cho đẹp hơn */
+.card .data-table {
+  margin-top: 0; /* Bỏ margin-top mặc định */
+}
+.card .data-table th,
+.card .data-table td {
+  padding: 12px; /* Giảm padding cho bảng nhỏ */
+  border: none;
+}
+.card .data-table th {
+  background-color: transparent;
+}
+.card .data-table tbody tr {
+  background-color: transparent;
+}
+.card .data-table tbody tr:hover {
+  background-color: #2a2a2a;
+}
