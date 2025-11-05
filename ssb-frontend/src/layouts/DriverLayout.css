@@ -1,0 +1,34 @@
+/* Thiết lập layout chính */
+.driver-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #121212; 
+  color: #ffffff;
+}
+
+/* Tùy chỉnh Header */
+.driver-header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 64px;
+  background-color: #1e1e1e; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 1100;
+}
+
+.header-spacer {
+  flex-grow: 1;
+}
+
+.driver-content {
+  flex-grow: 1;
+  padding: 24px;
+}
+
+@media (max-width: 600px) {
+  .driver-content {
+    padding: 16px;
+  }
+}

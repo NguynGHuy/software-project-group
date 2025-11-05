@@ -5,6 +5,8 @@ import BusList from './pages/admin/BusList';
 import DriverList from './pages/admin/DriverList';
 import StudentList from './pages/admin/StudentList';
 import ScheduleList from './pages/admin/Schedule';
+import DriverLayout from './layouts/DriverLayout';
+import DriverDashboard from './pages/Driver/DriverDashboard';
 
 function App() {
   return (
@@ -17,6 +19,11 @@ function App() {
           <Route path="driver" element={<DriverList />} />
           <Route path="student" element={<StudentList />} />
           <Route path="schedule" element={<ScheduleList />} /> {/**/}
+        </Route>
+
+        <Route path="/driver-dashboard" element={<DriverLayout />}>
+          <Route index element={<DriverDashboard />} />
+
         </Route>
       </Routes>
     </BrowserRouter>
