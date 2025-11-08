@@ -1,6 +1,6 @@
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import MapView from "./pages/mapview";
+import Header from "../components/layout/Header";
+import Sidebar from "../components/layout/Sidebar";
+import MapView from "../pages/mapview";
 
 function Layout() {
   return (

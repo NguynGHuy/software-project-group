@@ -1,6 +1,6 @@
 import React from 'react';
-import TableData from '../../components/Table/TableData';
-import Status from '../../components/Status';
+import TableData from '../../components/UI/Table/TableData';
+import Status from '../../components/UI/Status';
 import './AdminPage.css'; // Dùng chung 1 file CSS cho các trang admin
 
 const BusList = () => {

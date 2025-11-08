@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import './AdminLayout.css'; // Tạo file CSS này để style
+import Sidebar from '../components/layout/Sidebar';
+import Header from '../components/layout/Header';
+import './AdminLayout.css';
 
 const AdminLayout = () => {
   return (
