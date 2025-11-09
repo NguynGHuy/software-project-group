@@ -1,0 +1,102 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: min-content;
+  gap: 24px;
+}
+
+.stat-user { 
+  grid-column: 1 / span 1; 
+  grid-row: 1; 
+}
+.stat-routes { 
+  grid-column: 2 / span 1; 
+  grid-row: 1; 
+}
+.chart-bus-routes { 
+  grid-column: 3 / span 1; 
+  grid-row: 1 / span 2;
+  min-height: 300px;
+}
+.table-schedule { 
+  grid-column: 1 / span 2;
+  grid-row: 2; 
+}
+.notifications { 
+  grid-column: 1 / span 3; 
+  grid-row: 3; 
+}
+.zone-summary { 
+  grid-column: 1 / span 3;
+  grid-row: 4; 
+}
+
+.stat-value-large {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 12px;
+}
+.sparkline-chart {
+  width: 100%;
+  height: 60px;
+}
+.main-bus-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+}
+.zone-summary-content {
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: space-between;
+  gap: 16px;
+}
+.zone-stat-card {
+  flex: 1;
+  min-width: 200px;
+  background-color: #2a2a2a;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.zone-stat-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 8px;
+}
+.zone-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+.zone-stat-subtext {
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.4;
+}
+.table-schedule .data-table th,
+.table-schedule .data-table td {
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+}
+.table-schedule .data-table th {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+.table-schedule .data-table tbody tr {
+  border: none;
+}
+.table-schedule .data-table tbody tr:hover {
+  background-color: #2a2a2a;
+}

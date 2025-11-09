@@ -1,0 +1,16 @@
+.admin-layout {
+  display: flex;
+  background-color: #121212; /* Màu nền tối chung */
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1; /* Chiếm hết phần còn lại */
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  padding: 24px;
+}

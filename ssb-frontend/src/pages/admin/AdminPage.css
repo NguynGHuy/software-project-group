@@ -1,0 +1,81 @@
+.admin-page {
+  width: 100%;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+/* Tabs filter */
+.filter-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tab-item {
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.tab-item:hover {
+  background-color: #2d2d2d;
+  color: var(--text-primary);
+}
+
+.tab-item.active {
+  background-color: var(--text-primary);
+  color: var(--bg-main);
+  border-color: var(--text-primary);
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  border-collapse: collapse;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.data-table thead tr {
+  background-color: #292929;
+  color: var(--text-primary);
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  color: var(--text-secondary);
+}
+
+.data-table tbody tr:hover {
+  background-color: #222;
+}
+
+/* Status badges */
+.status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+.status.green { background: #09b66d33; color: #00ff99; }
+.status.red { background: #ff3b3b33; color: #ff4d4d; }
+.status.yellow { background: #d6b40033; color: #ffde59; }
+.status.blue { background: #0099ff33; color: #4db8ff; }
