@@ -6,6 +6,10 @@ import CssBaseline from '@mui/material/CssBaseline'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
 import theme from './theme'
+import './styles/global.css'
+import './styles/admin.css'
+import './styles/parent.css'
+import './styles/driver.css'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(

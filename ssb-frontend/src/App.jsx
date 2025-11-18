@@ -7,6 +7,8 @@ import ParentDashboard from './pages/ParentDashboard'
 import StudentsPage from './pages/StudentsPage'
 import RoutesPage from './pages/RoutesPage'
 import Layout from './components/Layout'
+import ParentLayout from './components/ParentLayout'
+import DriverLayout from './components/DriverLayout'
 
 function App() {
   const { user } = useAuth()
@@ -43,14 +45,15 @@ function App() {
           user?.role === 'QUAN_LY' ? <RoutesPage /> : <Navigate to={getDashboardRoute()} replace />
         } />
         
-        <Route path="driver" element={
-          user?.role === 'TAI_XE' ? <DriverDashboard /> : <Navigate to={getDashboardRoute()} replace />
-        } />
-        <Route path="parent" element={
-          user?.role === 'PHU_HUYNH' ? <ParentDashboard /> : <Navigate to={getDashboardRoute()} replace />
-        } />
-        
         <Route index element={<Navigate to={getDashboardRoute()} replace />} />
+      </Route>
+
+      <Route path="/parent" element={user?.role === 'PHU_HUYNH' ? <ParentLayout /> : <Navigate to={getDashboardRoute()} replace />}>
+        <Route index element={<ParentDashboard />} />
+      </Route>
+
+      <Route path="/driver" element={user?.role === 'TAI_XE' ? <DriverLayout /> : <Navigate to={getDashboardRoute()} replace />}>
+        <Route index element={<DriverDashboard />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

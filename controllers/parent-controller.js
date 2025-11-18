@@ -91,9 +91,14 @@ exports.deleteParent = async (req, res) => {
 exports.getStudentsForParent = async (req, res) => {
     try {
         const parentId = parseInt(req.params.id);
+        console.log(`[v0] Getting students for parent ID: ${parentId}`);
+        
         const students = await Parent.getLinkedStudents(parentId);
+        
+        console.log(`[v0] Found ${students.length} students for parent ${parentId}`);
         res.json({ success: true, data: students });
     } catch (err) {
+        console.error(`[v0] Error getting students for parent:`, err);
         res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };

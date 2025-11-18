@@ -99,73 +99,63 @@ const RoutesPage = () => {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Quản Lý Tuyến Đường</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
+    <Box sx={{ p: 3 }}>
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">Quản Lý Tuyến Đường</h1>
+        <button className="admin-btn-add" onClick={handleAdd}>
+          <AddIcon sx={{ fontSize: 20 }} />
           Thêm tuyến
-        </Button>
-      </Box>
+        </button>
+      </div>
 
-      <Card>
-        <CardContent>
-          <TextField
-            fullWidth
+      <Card sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
+        <CardContent sx={{ p: 0 }}>
+          <input
+            type="text"
+            className="admin-search-input"
             placeholder="Tìm kiếm tuyến đường..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ mb: 2 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
+            style={{ marginBottom: '20px' }}
           />
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Tên tuyến</TableCell>
-                  <TableCell>Xe bus</TableCell>
-                  <TableCell>Thời gian bắt đầu</TableCell>
-                  <TableCell>Thời gian kết thúc</TableCell>
-                  <TableCell>Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên tuyến</th>
+                  <th>Xe bus</th>
+                  <th>Thời gian bắt đầu</th>
+                  <th>Thời gian kết thúc</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
                 {filteredRoutes.map((route) => (
-                  <TableRow key={route.idTuyen}>
-                    <TableCell>{route.idTuyen}</TableCell>
-                    <TableCell>{route.tenTuyen}</TableCell>
-                    <TableCell>{route.bienSo || 'Chưa phân công'}</TableCell>
-                    <TableCell>{route.gioBatDau}</TableCell>
-                    <TableCell>{route.gioKetThuc}</TableCell>
-                    <TableCell>
-                      <Button 
-                        size="small" 
-                        startIcon={<EditIcon />} 
-                        onClick={() => handleEdit(route)}
-                      >
-                        Sửa
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleDelete(route.idTuyen)}
-                      >
-                        Xóa
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <tr key={route.idTuyen}>
+                    <td>{route.idTuyen}</td>
+                    <td>{route.tenTuyen}</td>
+                    <td>{route.bienSo || 'Chưa phân công'}</td>
+                    <td>{route.gioBatDau}</td>
+                    <td>{route.gioKetThuc}</td>
+                    <td>
+                      <div className="admin-action-btns">
+                        <button className="admin-btn-edit" onClick={() => handleEdit(route)}>
+                          <EditIcon sx={{ fontSize: 16 }} />
+                          Sửa
+                        </button>
+                        <button className="admin-btn-delete" onClick={() => handleDelete(route.idTuyen)}>
+                          <DeleteIcon sx={{ fontSize: 16 }} />
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 

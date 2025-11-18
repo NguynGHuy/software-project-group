@@ -147,81 +147,72 @@ const StudentsPage = () => {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Quản Lý Học Sinh</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
+    <Box sx={{ p: 3 }}>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Danh sách học sinh</h1>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Quản lý thông tin học sinh và phụ huynh
+          </Typography>
+        </div>
+        <button className="admin-btn-add" onClick={handleAdd}>
+          <AddIcon sx={{ fontSize: 20 }} />
           Thêm học sinh
-        </Button>
-      </Box>
+        </button>
+      </div>
 
-      <Card>
-        <CardContent>
-          <TextField
-            fullWidth
+      <Card sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
+        <CardContent sx={{ p: 0 }}>
+          <input
+            type="text"
+            className="admin-search-input"
             placeholder="Tìm kiếm theo tên hoặc lớp..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ mb: 2 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
+            style={{ marginBottom: '20px' }}
           />
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Họ tên</TableCell>
-                  <TableCell>Lớp</TableCell>
-                  <TableCell>Tuyến xe</TableCell>
-                  <TableCell>Điểm đón</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell>Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th>Lớp</th>
+                  <th>Tuyến xe</th>
+                  <th>Điểm đón</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
                 {filteredStudents.map((student) => (
-                  <TableRow key={student.idHocSinh}>
-                    <TableCell>{student.idHocSinh}</TableCell>
-                    <TableCell>{student.hoTen}</TableCell>
-                    <TableCell>{student.lop}</TableCell>
-                    <TableCell>{student.idTuyenXe || 'Chưa phân công'}</TableCell>
-                    <TableCell>{student.diemDon}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={student.trangThai}
-                        color={student.trangThai === 'Hoat dong' ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        size="small" 
-                        startIcon={<EditIcon />} 
-                        onClick={() => handleEdit(student)}
-                      >
-                        Sửa
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleDelete(student.idHocSinh)}
-                      >
-                        Xóa
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <tr key={student.idHocSinh}>
+                    <td style={{ fontWeight: 600 }}>{student.hoTen}</td>
+                    <td>{student.lop}</td>
+                    <td>{student.idTuyenXe || 'Chưa phân công'}</td>
+                    <td>{student.diemDon || '-'}</td>
+                    <td>
+                      <span className={student.trangThai === 1 || student.trangThai === 'Hoạt động' ? 'chip-active' : 'chip-inactive'}>
+                        {student.trangThai === 1 || student.trangThai === 'Hoạt động' ? 'Hoạt động' : 'Dừng'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-action-btns">
+                        <button className="admin-btn-edit" onClick={() => handleEdit(student)}>
+                          <EditIcon sx={{ fontSize: 16 }} />
+                          Sửa
+                        </button>
+                        <button className="admin-btn-delete" onClick={() => handleDelete(student.idHocSinh)}>
+                          <DeleteIcon sx={{ fontSize: 16 }} />
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 

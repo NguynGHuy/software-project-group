@@ -4,20 +4,39 @@ const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
+      main: '#0ea5e9',
+      light: '#38bdf8',
+      dark: '#0284c7',
     },
     secondary: {
       main: '#f50057',
     },
+    success: {
+      main: '#00ff00',
+      light: '#4ade80',
+      dark: '#16a34a',
+    },
+    error: {
+      main: '#ff0000',
+      light: '#ef4444',
+      dark: '#dc2626',
+    },
     background: {
-      default: '#0a0a0a',
-      paper: '#1a1a1a',
+      default: '#000000',
+      paper: '#0a0a0a',
     },
     text: {
       primary: '#ffffff',
-      secondary: '#b0b0b0',
+      secondary: '#94a3b8',
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontWeight: 700,
+    },
+    h6: {
+      fontWeight: 600,
     },
   },
   components: {
@@ -25,6 +44,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: '#000000',
+          borderBottom: '1px solid #1e293b',
         },
       },
     },
@@ -32,22 +52,67 @@ const theme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: '#000000',
-          borderRight: '1px solid #2a2a2a',
+          borderRight: '1px solid #1e293b',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1a1a1a',
+          backgroundColor: '#0a0a0a',
           borderRadius: 12,
+          border: '1px solid #1e293b',
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1a1a1a',
+          backgroundColor: '#0a0a0a',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #1e293b',
+        },
+        head: {
+          fontWeight: 600,
+          color: '#94a3b8',
+          textTransform: 'uppercase',
+          fontSize: '0.75rem',
+          letterSpacing: '0.05em',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+        },
+        colorSuccess: {
+          backgroundColor: '#00ff00',
+          color: '#000000',
+        },
+        colorError: {
+          backgroundColor: '#ff0000',
+          color: '#ffffff',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+          borderRadius: 8,
+        },
+        contained: {
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: 'none',
+          },
         },
       },
     },

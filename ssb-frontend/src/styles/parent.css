@@ -1,0 +1,144 @@
+/* Parent Dashboard Specific Styles */
+.parent-app {
+  min-height: 100vh;
+  background-color: var(--color-bg-primary);
+}
+
+.parent-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-md);
+}
+
+.parent-title {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  text-align: center;
+}
+
+.greeting {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.student-card {
+  background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+  transition: all 0.3s ease;
+}
+
+.student-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.1);
+}
+
+.student-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-name {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.student-id {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.bus-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: rgba(14, 165, 233, 0.1);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+}
+
+.bus-info-text {
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+}
+
+.pickup-time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: var(--color-bg-card);
+}
+
+.notification-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon.success {
+  background-color: rgba(0, 255, 0, 0.1);
+  color: var(--color-success);
+}
+
+.notification-icon.warning {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: var(--color-warning);
+}
+
+.notification-icon.info {
+  background-color: rgba(14, 165, 233, 0.1);
+  color: var(--color-accent);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-text {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.notification-time {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}

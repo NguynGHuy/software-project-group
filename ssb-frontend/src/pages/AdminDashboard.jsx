@@ -185,97 +185,82 @@ const AdminDashboard = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Tổng Quan Hệ Thống
-      </Typography>
+    <Box sx={{ p: 3 }}>
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">Tổng Quan Hệ Thống</h1>
+      </div>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box>
-                    <Typography color="text.secondary" gutterBottom>
-                      {stat.title}
-                    </Typography>
-                    <Typography variant="h4">{stat.value}</Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      bgcolor: `${stat.color}.main`,
-                      color: 'white',
-                      p: 1.5,
-                      borderRadius: 2,
-                    }}
-                  >
-                    {stat.icon}
-                  </Box>
+            <div className="admin-stats-card">
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    {stat.title}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#f1f5f9' }}>{stat.value}</Typography>
                 </Box>
-              </CardContent>
-            </Card>
+                <div className={`admin-stats-icon ${stat.color}`}>
+                  {stat.icon}
+                </div>
+              </Box>
+            </div>
           </Grid>
         ))}
       </Grid>
 
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Bản Đồ Vị Trí Xe Bus
-          </Typography>
-          <MapComponent buses={buses} />
-        </CardContent>
-      </Card>
+      <div className="admin-map-container">
+        <h2 className="admin-map-title">Bản Đồ Vị Trí Xe Bus</h2>
+        <MapComponent buses={buses} />
+      </div>
 
-      <Card>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">Danh Sách Xe Bus</Typography>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddBus}>
+      <Card sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
+        <CardContent sx={{ p: 0 }}>
+          <div className="admin-page-header" style={{ marginBottom: '16px' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#f1f5f9' }}>Danh Sách Xe Bus</Typography>
+            <button className="admin-btn-add" onClick={handleAddBus}>
+              <AddIcon sx={{ fontSize: 20 }} />
               Thêm xe mới
-            </Button>
-          </Box>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Biển số</TableCell>
-                  <TableCell>Sức chứa</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell>Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+            </button>
+          </div>
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Biển số</th>
+                  <th>Sức chứa</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
                 {buses.slice(0, 5).map((bus) => (
-                  <TableRow key={bus.idXeBus}>
-                    <TableCell>{bus.bienSo}</TableCell>
-                    <TableCell>{bus.sucChua} người</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={bus.trangThai}
-                        color={bus.trangThai === 'Hoat dong' ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button size="small" startIcon={<EditIcon />} onClick={() => handleEditBus(bus)}>
-                        Sửa
-                      </Button>
-                      <Button 
-                        size="small" 
-                        color="error" 
-                        startIcon={<DeleteIcon />} 
-                        onClick={() => handleDeleteBus(bus.idXeBus)}
-                      >
-                        Xóa
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <tr key={bus.idXeBus}>
+                    <td>{bus.bienSo}</td>
+                    <td>{bus.sucChua} người</td>
+                    <td>
+                      <span className={bus.trangThai === 'Hoat dong' ? 'chip-active' : 'chip-inactive'}>
+                        {bus.trangThai}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-action-btns">
+                        <button className="admin-btn-edit" onClick={() => handleEditBus(bus)}>
+                          <EditIcon sx={{ fontSize: 16 }} />
+                          Sửa
+                        </button>
+                        <button className="admin-btn-delete" onClick={() => handleDeleteBus(bus.idXeBus)}>
+                          <DeleteIcon sx={{ fontSize: 16 }} />
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 

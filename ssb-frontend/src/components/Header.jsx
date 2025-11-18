@@ -1,6 +1,8 @@
-import { AppBar, Toolbar, Typography, IconButton, Box, Button, Avatar } from '@mui/material'
+import { AppBar, Toolbar, Typography, IconButton, Box, Button, Avatar, TextField, InputAdornment, Badge } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import LogoutIcon from '@mui/icons-material/Logout'
+import NotificationsIcon from '@mui/icons-material/Notifications'
+import SearchIcon from '@mui/icons-material/Search'
 import { useAuth } from '../context/AuthContext'
 
 const Header = ({ toggleSidebar }) => {
@@ -29,10 +31,11 @@ const Header = ({ toggleSidebar }) => {
       sx={{ 
         zIndex: (theme) => theme.zIndex.drawer + 1,
         backgroundColor: '#000000',
-        borderBottom: '1px solid #2a2a2a',
+        borderBottom: '1px solid #1e293b',
+        boxShadow: 'none',
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ height: 70 }}>
         <IconButton
           color="inherit"
           edge="start"
@@ -42,12 +45,59 @@ const Header = ({ toggleSidebar }) => {
           <MenuIcon />
         </IconButton>
         
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-          Smart School Bus System
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: 'primary.main',
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              fontSize: '1.25rem',
+            }}
+          >
+            SSB
+          </Box>
+          <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
+            SmartBus Admin
+          </Typography>
+        </Box>
+
+        <Box sx={{ flexGrow: 1 }} />
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <TextField
+            size="small"
+            placeholder="Search..."
+            sx={{
+              width: 250,
+              '& .MuiOutlinedInput-root': {
+                bgcolor: '#0a0a0a',
+                borderRadius: 2,
+                '& fieldset': {
+                  borderColor: '#1e293b',
+                },
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#94a3b8' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          
+          <IconButton color="inherit">
+            <Badge badgeContent={3} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, ml: 1 }}>
             <Avatar 
               sx={{ 
                 width: 36, 
@@ -59,7 +109,7 @@ const Header = ({ toggleSidebar }) => {
               {(user?.hoTen || user?.tenDangNhap)?.charAt(0).toUpperCase()}
             </Avatar>
             <Box>
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body2" fontWeight="600">
                 {user?.hoTen || user?.tenDangNhap}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -67,20 +117,19 @@ const Header = ({ toggleSidebar }) => {
               </Typography>
             </Box>
           </Box>
-          <Button
+          
+          <IconButton
             color="inherit"
-            startIcon={<LogoutIcon />}
             onClick={handleLogout}
             sx={{ 
-              borderRadius: 2,
-              px: 2,
+              ml: 1,
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(255,255,255,0.05)',
               }
             }}
           >
-            Đăng xuất
-          </Button>
+            <LogoutIcon />
+          </IconButton>
         </Box>
       </Toolbar>
     </AppBar>
