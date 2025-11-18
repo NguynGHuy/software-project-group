@@ -1,460 +1,309 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Box,
-  Typography,
   Card,
   CardContent,
-  Button,
-  Grid,
+  Typography,
   Stack,
   Chip,
+  Button,
+  Grid,
   Snackbar,
-  Alert
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import MessageIcon from '@mui/icons-material/Message';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PinDropIcon from '@mui/icons-material/PinDrop';
-import PeopleIcon from '@mui/icons-material/People';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { LoadingButton } from "@mui/lab";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PinDropIcon from "@mui/icons-material/PinDrop";
+import PersonIcon from "@mui/icons-material/Person";
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
+import StopOutlinedIcon from '@mui/icons-material/StopOutlined';
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
+import MessageOutlinedIcon from '@mui/icons-material/MessageOutlined';
 
-const InfoStat = ({ icon, title, value }) => (
-  <Stack direction="row" spacing={1} alignItems="center">
-    {React.cloneElement(icon, { sx: { color: 'grey.400', fontSize: 22 } })}
-    <Box>
-      <Typography variant="caption" color="grey.400" sx={{ lineHeight: 1 }}>
-        {title}
-      </Typography>
-      <Typography
-        variant="body1"
-        sx={{ fontWeight: 'bold', color: '#fff', lineHeight: 1.2 }}
-      >
-        {value}
-      </Typography>
-    </Box>
+const InfoRow = ({ icon, label, value }) => (
+  <Stack direction="row" spacing={1.2} alignItems="center">
+    {React.cloneElement(icon, { sx: { fontSize: 18, color: "#aaa" } })}
+    <Typography sx={{ fontSize: 13, color: "#ccc" }}>{label}: {value}</Typography>
   </Stack>
 );
 
-const DriverDashboard = () => {
-  const tripData = {
-    title: 'Chuyến đón sáng',
-    route: 'Cầu Giấy - Trường DEF',
-    status: 'Đang thực hiện',
-    currentStudents: 12,
-    totalStudents: 15,
-    startTime: '07:00',
-    currentStop: 3,
-    totalStops: 5,
-    remainingStudents: 3
-  };
-
+export default function DriverDashboard() {
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
 
-  const showNotification = (message, severity = 'success') => {
-    setSnackbar({ open: true, message, severity });
+  const trip = {
+    title: "Chuyến đón sáng",
+    route: "Cầu Giấy → Trường DEF",
+    start: "07:00",
+    nextStop: "3 / 5",
+    remaining: "3 HS",
+    status: "Đang thực hiện",
+    pickedStudents: 12,
+    totalStudents: 15,
   };
 
+  const [students, setStudents] = useState([
+    { id: 1, name: "Nguyễn Văn A", class: "5A", time: "07:15", address: "123 Cầu Giấy", status: "Đã đón" },
+    { id: 2, name: "Trần Thị B", class: "4B", time: "07:22", address: "456 Láng Hạ", status: "Chưa đón" },
+    { id: 3, name: "Trần Thị B", class: "4B", time: "07:22", address: "456 Láng Hạ", status: "Chưa đón" },
+    { id: 4, name: "Trần Thị B", class: "4B", time: "07:22", address: "456 Láng Hạ", status: "Chưa đón" },
+    { id: 5, name: "Trần Thị B", class: "4B", time: "07:22", address: "456 Láng Hạ", status: "Chưa đón" },
+    { id: 6, name: "Phạm Minh C", class: "3C", time: "07:30", address: "78 Kim Mã", status: "Vắng mặt" },
+  ]);
+
+  const updateStatus = (id, newStatus) => {
+    setStudents(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
+    setSnackbar({ open: true, message: `Đã cập nhật: ${newStatus}`, severity: newStatus === "Đã đón" ? "success" : "warning" });
+  };
+  
+  const handleStartTrip = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setSnackbar({ open: true, message: 'Đã bắt đầu chuyến đi!', severity: 'success' });
+    }, 1500);
+  };
+  const handleEndTrip = () => setSnackbar({ open: true, message: 'Đã kết thúc chuyến đi.', severity: 'info' });
+  const handleReportIssue = () => setSnackbar({ open: true, message: 'Đã gửi báo cáo sự cố!', severity: 'warning' });
+  const handleMessages = () => setSnackbar({ open: true, message: 'Đang mở tin nhắn...', severity: 'info' });
   const handleCloseSnackbar = (_, reason) => {
     if (reason === 'clickaway') return;
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const handleStartTrip = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      showNotification('Đã bắt đầu chuyến đi!', 'success');
-    }, 2000);
-  };
-
-  const handleEndTrip = () => {
-    showNotification('Đã kết thúc chuyến đi.', 'info');
-  };
-
-  const handleReportIssue = () => {
-    showNotification('Đã gửi báo cáo sự cố!', 'warning');
-  };
-
-  const handleMessages = () => {
-    showNotification('Đang mở tin nhắn...', 'info');
-  };// Danh sách học sinh (state)
-const [students, setStudents] = useState([
-  {
-    id: 1,
-    name: 'Nguyễn Văn An',
-    class: 'Lớp 5A',
-    address: '123 Cầu Giấy, Hà Nội',
-    pickupTime: '07:15',
-    status: 'Chưa đón'
-  },
-  {
-    id: 2,
-    name: 'Trần Thị Bình',
-    class: 'Lớp 4B',
-    address: '456 Láng Hạ, Hà Nội',
-    pickupTime: '07:25',
-    status: 'Chưa đón'
-  },
-  {
-    id: 3,
-    name: 'Phạm Minh Tuấn',
-    class: 'Lớp 3C',
-    address: '78 Kim Mã, Hà Nội',
-    pickupTime: '07:35',
-    status: 'Chưa đón'
-  }
-]);
-
-// Hàm cập nhật trạng thái học sinh
-const handlePickupStatus = (id, newStatus) => {
-  setStudents(prev =>
-    prev.map(s => (s.id === id ? { ...s, status: newStatus } : s))
-  );
-  showNotification(
-    `Đã đánh dấu ${newStatus.toLowerCase()} cho học sinh ${
-      students.find(s => s.id === id)?.name
-    }`,
-    newStatus === 'Đã đón' ? 'success' : 'warning'
-  );
-};
-
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#121212', py: 3 }}>
-      <Container maxWidth="sm">
-        {/* Header */}
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 'bold', color: '#fff', mb: 0.5 }}
-        >
-          Xin chào, Nguyễn Văn A
-        </Typography>
-        <Typography variant="body2" color="grey.400" sx={{ mb: 3 }}>
-          Thứ Ba, 30 tháng 9, 2025
-        </Typography>
+    <Container maxWidth="sm" sx={{ color: "white", pb: 4, pt: 4 }}>
+      {/* Greeting */}
+      <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Xin chào, Nguyễn Văn A</Typography>
+      <Typography sx={{ fontSize: 13, color: "#aaa", mb: 2 }}>Thứ Ba, 30/09/2025</Typography>
 
-        {/* Trip Card */}
-        <Card
-          sx={{
-            backgroundColor: '#1e1e1e',
-            borderRadius: 3,
-            mb: 3,
-            color: '#fff'
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="flex-start"
-              mb={2}
-            >
-              <Box>
-                <Chip
-                  label={tripData.status}
-                  size="small"
-                  sx={{
-                    mb: 1,
-                    backgroundColor: '#333',
-                    color: '#fff',
-                    fontWeight: 'bold'
-                  }}
-                />
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {tripData.title}
-                </Typography>
-                <Typography variant="body2" color="grey.400">
-                  {tripData.route}
-                </Typography>
-              </Box>
-              <Box sx={{ textAlign: 'right' }}>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 'bold', color: '#fff' }}
-                >
-                  {tripData.currentStudents}/{tripData.totalStudents}
-                </Typography>
-                <Typography variant="caption" color="grey.400">
-                  Học sinh
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Grid container spacing={2}>
-              <Grid item xs={4}>
-                <InfoStat
-                  icon={<AccessTimeIcon />}
-                  title="Bắt đầu"
-                  value={tripData.startTime}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <InfoStat
-                  icon={<PinDropIcon />}
-                  title="Điểm tiếp"
-                  value={`${tripData.currentStop}/${tripData.totalStops}`}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <InfoStat
-                  icon={<PeopleIcon />}
-                  title="Còn lại"
-                  value={`${tripData.remainingStudents} HS`}
-                />
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <LoadingButton
-              fullWidth
-              startIcon={<PlayArrowIcon />}
-              variant="contained"
-              loading={isLoading}
-              onClick={handleStartTrip}
-              sx={{
-                py: 2,
-                backgroundColor: '#fff',
-                color: '#000',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2,
-                '&:hover': { backgroundColor: '#e0e0e0' }
-              }}
-            >
-              Bắt đầu chuyến
-            </LoadingButton>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              startIcon={<StopIcon />}
-              variant="outlined"
-              onClick={handleEndTrip}
-              sx={{
-                py: 2,
-                borderColor: '#444',
-                color: '#fff',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2
-              }}
-            >
-              Kết thúc chuyến
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              startIcon={<WarningAmberIcon />}
-              variant="contained"
-              onClick={handleReportIssue}
-              sx={{
-                py: 2,
-                backgroundColor: '#b71c1c',
-                color: '#fff',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2,
-                '&:hover': { backgroundColor: '#a11212' }
-              }}
-            >
-              Báo sự cố
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              startIcon={<MessageIcon />}
-              variant="outlined"
-              onClick={handleMessages}
-              sx={{
-                py: 2,
-                borderColor: '#444',
-                color: '#fff',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2
-              }}
-            >
-              Tin nhắn
-            </Button>
-          </Grid>
-        </Grid>
-
-{/* Danh sách học sinh hôm nay */}
-<Box
-  sx={{
-    width: '150%',
-    mt: 2,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 3,
-    p: 2,
-    maxHeight: 500,
-    overflowY: 'auto',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
-  }}
->
-  <Typography
-    variant="h6"
-    sx={{
-      fontWeight: 'bold',
-      color: '#fff',
-      mb: 2,
-      textAlign: 'center'
-    }}
-  >
-    Danh sách học sinh hôm nay
-  </Typography>
-
-  {students.map((student) => (
-    <Card
-      key={student.id}
-      sx={{
-        backgroundColor: '#1e1e1e',
-        borderRadius: 3,
-        mb: 2,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.25)'
-      }}
-    >
-      <CardContent sx={{ p: 2.5 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#fff' }}>
-              {student.name}
+      {/* Thông tin */}
+      <Card sx={{ background: "#1A1A1A", borderRadius: 3, p: 2, mb: 3 }}>
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
+            <Box>
               <Chip
-                label={student.status}
-                size="small"
+                label={trip.status}
                 sx={{
-                  ml: 1,
-                  backgroundColor:
-                    student.status === 'Đã đón'
-                      ? '#2E7D32'
-                      : student.status === 'Vắng mặt'
-                      ? '#D32F2F'
-                      : '#424242',
-                  color: '#fff',
-                  fontWeight: 'bold'
+                  background: "#fff",
+                  color: "#121212",
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  mb: 1,
+                  px: 1, 
+                  py: 0.5, 
+                  borderRadius: '6px' 
                 }}
-                icon={
-                  student.status === 'Đã đón' ? (
-                    <CheckCircleOutlineIcon sx={{ fontSize: 16 }} />
-                  ) : (
-                    <AccessTimeIcon sx={{ fontSize: 16 }} />
-                  )
-                }
               />
-            </Typography>
+              <Typography sx={{ fontSize: 20, color: "#aaa", fontWeight: 700, mt: 0.5 }}>{trip.title}</Typography>
+              <Typography sx={{ fontSize: 13, color: "#aaa" }}>{trip.route}</Typography>
+            </Box>
 
-            <Typography variant="body2" color="grey.400">
-              {student.class}
-            </Typography>
-
-            <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
-              <PinDropIcon sx={{ color: 'grey.500', fontSize: 18 }} />
-              <Typography variant="body2" color="grey.400">
-                {student.address}
+            <Box textAlign="right">
+              <Typography sx={{ fontSize: 24, color: "#aaa", fontWeight: 700, lineHeight: 1 }}>
+                {trip.pickedStudents}/{trip.totalStudents}
               </Typography>
-            </Stack>
-          </Box>
+              <Typography sx={{ fontSize: 14, color: "#aaa" }}>Học sinh</Typography>
+            </Box>
+          </Stack>
 
-          <Typography
-            variant="subtitle1"
+          {/* Hàng thông tin chi tiết (Bắt đầu, Điểm tiếp, Còn lại) */}
+          <Grid container spacing={8} mt={1}>
+            <Grid item xs={4}>
+              <InfoRow icon={<AccessTimeIcon />} label="Bắt đầu" value={trip.start} />
+            </Grid>
+            <Grid item xs={4}>
+              <InfoRow icon={<PinDropIcon />} label="Điểm tiếp" value={trip.nextStop} />
+            </Grid>
+            <Grid item xs={4}>
+              <InfoRow
+                icon={<PersonIcon />}
+                label="Còn lại"
+                value={trip.totalStudents - trip.pickedStudents}
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Nút chức năng */}
+      <Grid container spacing={2} mt={3}>
+        <Grid item xs={6} width={268}>
+          <LoadingButton
+            fullWidth
+            variant="contained"
+            loading={isLoading}
+            onClick={handleStartTrip}
             sx={{
+              height: 100,
+              backgroundColor: '#fff',
+              color: '#121212',
               fontWeight: 'bold',
-              color: '#fff'
+              borderRadius: 2,
+              textTransform: 'none',
+              flexDirection: 'column',
+              '&:hover': { backgroundColor: '#e0e0e0' }
             }}
           >
-            {student.pickupTime}
-          </Typography>
-        </Box>
-
-        {/* Nút căn giữa */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-          {student.status === 'Chưa đón' ? (
-            <Stack direction="row" spacing={2} sx={{ width: '100%', justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: '#2E7D32',
-                  color: '#fff',
-                  fontWeight: 'bold',
-                  textTransform: 'none',
-                  '&:hover': { backgroundColor: '#1B5E20' }
-                }}
-                onClick={() => handlePickupStatus(student.id, 'Đã đón')}
-              >
-                Đã đón
-              </Button>
-              <Button
-                variant="outlined"
-                fullWidth
-                sx={{
-                  borderColor: '#D32F2F',
-                  color: '#D32F2F',
-                  fontWeight: 'bold',
-                  textTransform: 'none',
-                  '&:hover': { borderColor: '#B71C1C', color: '#B71C1C' }
-                }}
-                onClick={() => handlePickupStatus(student.id, 'Vắng mặt')}
-              >
-                Vắng mặt
-              </Button>
-            </Stack>
-          ) : (
-            <Button
-              fullWidth
-              disabled
-              sx={{
-                backgroundColor:
-                  student.status === 'Đã đón' ? '#2E7D32' : '#D32F2F',
-                color: '#fff',
-                fontWeight: 'bold',
-                borderRadius: 2,
-                textTransform: 'none',
-                '&.Mui-disabled': { color: '#fff', opacity: 0.9 }
-              }}
-            >
-              {student.status}
-            </Button>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
-  ))}
-</Box>
-
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert
-            severity={snackbar.severity}
-            onClose={handleCloseSnackbar}
-            variant="filled"
-            sx={{ width: '100%' }}
+            {isLoading ? (
+              <CircularProgress size={24} sx={{ mb: 0.5, color: '#ffff' }} />
+            ) : (
+              <PlayArrowOutlinedIcon sx={{ mb: 0.5 }} />
+            )}
+            Bắt đầu chuyến
+          </LoadingButton>
+        </Grid>
+        <Grid item xs={6} width={268}>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleEndTrip}
+            sx={{
+              height: 100,
+              borderColor: 'grey.700',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: 2,
+              textTransform: 'none',
+              flexDirection: 'column'
+            }}
           >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      </Container>
-    </Box>
-  );
-};
+            <StopOutlinedIcon sx={{ mb: 0.5 }} />
+            Kết thúc chuyến
+          </Button>
+        </Grid>
+        <Grid item xs={6} width={268}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleReportIssue}
+            sx={{
+              height: 100,
+              backgroundColor: '#D32F2F',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: 2,
+              textTransform: 'none',
+              flexDirection: 'column',
+              '&:hover': { backgroundColor: '#C62828' }
+            }}
+          >
+            <WarningAmberOutlinedIcon sx={{ mb: 0.5 }} />
+            Báo sự cố
+          </Button>
+        </Grid>
+        <Grid item xs={6} width={268}>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleMessages}
+            sx={{
+              height: 100,
+              borderColor: 'grey.700',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: 2,
+              textTransform: 'none',
+              flexDirection: 'column'
+            }}
+          >
+            <MessageOutlinedIcon sx={{ mb: 0.5 }} />
+            Tin nhắn
+          </Button>
+        </Grid>
+      </Grid>
 
-export default DriverDashboard;
+      {/* (Danh sách học sinh) */}
+      <Typography sx={{ fontSize: 18, fontWeight: 700, mb: 2, mt:2}}>Danh sách học sinh</Typography>
+
+      <Stack spacing={2}>
+        {students.map(s => (
+          <Card key={s.id} sx={{ background: "#1A1A1A", borderRadius: 3 }}>
+            <CardContent>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography sx={{ fontSize: 17, fontWeight: 700, color: "#ffff" }}>{s.name}</Typography>
+                <Chip
+                  label={s.status}
+                  size="small"
+                  icon={s.status === "Đã đón" }
+                  sx={{
+                    background:
+                      s.status === "Đã đón" ? "#2E7D32" : s.status === "Vắng mặt" ? "#B71C1C" : "#555",
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                />
+              </Stack>
+              <Typography sx={{ fontSize: 13, color: "#aaa", mb: 1 }}>Lớp {s.class}</Typography>
+              <InfoRow icon={<PinDropIcon />} label="Địa chỉ" value={s.address} />
+              <InfoRow icon={<AccessTimeIcon />} label="Giờ đón" value={s.time} />
+
+              {/* CĂN CHỈNH NÚT HỌC SINH */}
+              <Stack direction="row" spacing={1} mt={2}>
+                {s.status === "Chưa đón" ? (
+                  <>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{ 
+                        background: "#2E7D32", 
+                        textTransform: 'none', 
+                        fontWeight: 'bold',
+                        '&:hover': { background: '#1B5E20' }
+                      }}
+                      onClick={() => updateStatus(s.id, "Đã đón")}
+                    >
+                      Đã đón
+                    </Button>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{ 
+                        background: "#D32F2F", 
+                        color: "#ffff",
+                        textTransform: 'none', 
+                        fontWeight: 'bold',
+                        '&:hover': { background: '#8a1111ff' }
+                      }}
+                      onClick={() => updateStatus(s.id, "Vắng mặt")}
+                    >
+                      Vắng mặt
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    fullWidth 
+                    disabled 
+                    sx={{ 
+                      backgroundColor: s.status === 'Đã đón' ? '#2E7D32' : '#B71C1C',
+                      textTransform: 'none', 
+                      fontWeight: 'bold',
+                      '&.Mui-disabled': { color: '#fff', opacity: 0.7 }
+                    }}
+                  >
+                    {s.status}
+                  </Button>
+                )}
+              </Stack>
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+      {/* Snackbar */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={3000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
+}
