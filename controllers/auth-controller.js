@@ -1,6 +1,7 @@
 // controllers/auth-controller.js
 const { sql, poolPromise } = require('../config/database.js');
 
+
 exports.login = async (req, res) => {
     const { username, password } = req.body || {};
     
@@ -106,3 +107,4 @@ exports.logout = (req, res) => {
         res.json({ success: true, message: 'Đăng xuất thành công' });
     });
 };
+

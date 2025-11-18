@@ -7,7 +7,7 @@ import ParentDashboard from './pages/ParentDashboard'
 import StudentsPage from './pages/StudentsPage'
 import RoutesPage from './pages/RoutesPage'
 import Layout from './components/Layout'
-import ParentLayout from './components/ParentLayout'
+import ParentLayout from './parent/ParentLayout'
 import DriverLayout from './components/DriverLayout'
 
 function App() {

@@ -2,8 +2,9 @@ const sql = require('mssql');
 
 const config = {
     user: 'sa',
-    password: '12345678',
-    server: 'localhost\\MTHANHDUY',
+    password: '123456',
+    server: 'DESKTOP-UKN1BR0', // chỉ hostname, không \instance
+    port: 1435,                 // port cố định của instance MSSQLSERVER02
     database: 'CNPM',
     options: {
         encrypt: false,
@@ -21,7 +22,7 @@ try {
             return pool;
         })
         .catch(err => {
-            console.log('Lỗi kết nối SQL Server: ', err.message);
+            console.log('Lỗi kết nối SQL Server: ', err);
             return null;
         });
 } catch (err) {
