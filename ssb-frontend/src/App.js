@@ -22,26 +22,27 @@ import Home from "./pages/Parent/Home"
 import LoginPage from "./pages/Login/LoginPage"
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading } = useAuth()
+  return children;
+  // const { user, loading } = useAuth()  
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading...</div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading...</div>
+  //   )
+  // }
 
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
+  // // if (!user) {
+  // //   return <Navigate to="/login" replace />
+  // // }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect về trang phù hợp với role
-    if (user.role === "QUAN_LY") return <Navigate to="/dashboard" replace />
-    if (user.role === "TAI_XE") return <Navigate to="/driver" replace />
-    if (user.role === "PHU_HUYNH") return <Navigate to="/parent" replace />
-  }
+  // if (allowedRoles && !allowedRoles.includes(user.role)) {
+  //   // Redirect về trang phù hợp với role
+  //   if (user.role === "QUAN_LY") return <Navigate to="/dashboard" replace />
+  //   if (user.role === "TAI_XE") return <Navigate to="/driver" replace />
+  //   if (user.role === "PHU_HUYNH") return <Navigate to="/parent" replace />
+  // }
 
-  return children
+  // return children
 }
 
 function App() {
