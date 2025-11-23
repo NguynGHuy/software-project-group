@@ -1,153 +1,149 @@
 import { useState, useEffect } from 'react'
-import { Box, Card, CardContent, Typography } from '@mui/material'
+import { Box, Card, CardContent, CircularProgress, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { busService } from '../services/api'
+import { busService } from '../services/api' 
 import BusDialog from '../components/BusDialog'
 
 const BusesPage = () => {
   const [buses, setBuses] = useState([])
-  const [filteredBuses, setFilteredBuses] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
+  
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedBus, setSelectedBus] = useState(null)
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  useEffect(() => { loadBuses() }, [])
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = buses.filter(bus =>
-        bus.bienSo.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      setFilteredBuses(filtered)
-    } else {
-      setFilteredBuses(buses)
-    }
-  }, [searchTerm, buses])
-
-  const loadData = async () => {
+  const loadBuses = async () => {
+    setLoading(true)
     try {
-      const response = await busService.getAll()
-      const busesData = Array.isArray(response.data) ? response.data : (response.data?.data || [])
-      setBuses(busesData)
+      const res = await busService.getAll()
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || [])
+      setBuses(data) 
     } catch (error) {
-      console.error('Failed to load buses:', error)
-    }
+      console.error("Lỗi tải danh sách xe:", error)
+      setBuses([])
+    } finally { setLoading(false) }
   }
 
-  const handleAdd = () => {
-    setSelectedBus(null)
-    setDialogOpen(true)
-  }
-
-  const handleEdit = (bus) => {
-    setSelectedBus(bus)
-    setDialogOpen(true)
-  }
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa xe bus này?')) {
-      try {
-        await busService.delete(id)
-        loadData()
-      } catch (error) {
-        console.error('Failed to delete bus:', error)
-        alert('Không thể xóa xe bus')
-      }
-    }
-  }
-
-  const handleSave = async (busData) => {
+  const handleSave = async (data) => {
     try {
       if (selectedBus) {
-        await busService.update(selectedBus.idXeBus, busData)
+        await busService.update(selectedBus.idXeBus || selectedBus.idXe, data)
       } else {
-        await busService.create(busData)
+        await busService.create(data)
       }
       setDialogOpen(false)
-      loadData()
+      loadBuses()
+      alert(selectedBus ? 'Cập nhật thành công!' : 'Thêm xe thành công!')
     } catch (error) {
-      console.error('Failed to save bus:', error)
-      alert('Không thể lưu thông tin xe bus')
+      alert('Lỗi: ' + (error.response?.data?.message || error.message))
     }
   }
+
+  const handleAdd = () => { setSelectedBus(null); setDialogOpen(true); }
+  const handleEdit = (bus) => { setSelectedBus(bus); setDialogOpen(true); }
+  
+  const handleDelete = async (id) => {
+      if(window.confirm("Bạn có chắc muốn xóa xe này?")) {
+          try {
+              await busService.delete(id)
+              loadBuses()
+          } catch(err) { alert("Lỗi xóa: " + err.message) }
+      }
+  }
+
+  // --- CẬP NHẬT HÀM HIỂN THỊ MÀU SẮC ---
+  const getStatusLabel = (status) => {
+    const s = Number(status); // Chuyển về số để so sánh chính xác
+
+    // Trạng thái 1: Hoạt động (Xanh lá)
+    if (s === 1) {
+        return { text: 'Hoạt động', color: '#4ade80' }; 
+    }
+    // Trạng thái 2: Bảo trì (Vàng cam)
+    if (s === 2) {
+        return { text: 'Đang bảo trì', color: '#facc15' }; 
+    }
+    // Trạng thái 0: Ngưng hoạt động (Đỏ)
+    if (s === 0) {
+        return { text: 'Ngưng hoạt động', color: '#f87171' }; 
+    }
+    
+    return { text: 'Không xác định', color: '#94a3b8' };
+  }
+  // --------------------------------------
 
   return (
     <Box sx={{ p: 3 }}>
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Quản Lý Xe Buýt</h1>
+          <h1 className="admin-page-title">Danh sách xe buýt</h1>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Quản lý thông tin xe buýt và trạng thái hoạt động
+            Quản lý phương tiện và trạng thái vận hành
           </Typography>
         </div>
         <button className="admin-btn-add" onClick={handleAdd}>
-          <AddIcon sx={{ fontSize: 20 }} />
-          Thêm xe buýt
+            <AddIcon sx={{ fontSize: 20 }} /> Thêm xe
         </button>
       </div>
 
       <Card sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
         <CardContent sx={{ p: 0 }}>
-          <input
-            type="text"
-            className="admin-search-input"
-            placeholder="Tìm kiếm theo biển số xe..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ marginBottom: '20px' }}
-          />
-
+          {loading ? (
+            <Box sx={{display:'flex', justifyContent:'center', py: 5}}><CircularProgress/></Box>
+          ) : (
           <div className="admin-table-container">
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Biển số</th>
-                  <th>Sức chứa</th>
-                  <th>Trạng thái</th>
-                  <th>Hành động</th>
+                  <th>Biển số xe</th>
+                  <th style={{ textAlign: 'center' }}>Sức chứa</th>
+                  <th style={{ textAlign: 'right' }}>Trạng thái</th>
+                  <th style={{ textAlign: 'right' }}>Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredBuses.map((bus) => (
-                  <tr key={bus.idXeBus}>
-                    <td>{bus.idXeBus}</td>
-                    <td style={{ fontWeight: 600 }}>{bus.bienSo}</td>
-                    <td>{bus.sucChua} người</td>
-                    <td>
-                      <span className={bus.trangThai === 'Hoat dong' ? 'chip-active' : 'chip-inactive'}>
-                        {bus.trangThai}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="admin-action-btns">
-                        <button className="admin-btn-edit" onClick={() => handleEdit(bus)}>
-                          <EditIcon sx={{ fontSize: 16 }} />
-                          Sửa
-                        </button>
-                        <button className="admin-btn-delete" onClick={() => handleDelete(bus.idXeBus)}>
-                          <DeleteIcon sx={{ fontSize: 16 }} />
-                          Xóa
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {Array.isArray(buses) && buses.length > 0 ? (
+                    buses.map((bus, index) => {
+                    // Gọi hàm lấy trạng thái mới
+                    const statusInfo = getStatusLabel(bus.trangThai);
+                    return (
+                    <tr key={bus.idXeBus || bus.idXe || index}> 
+                        <td style={{ fontWeight: 600, fontSize: '1.05rem' }}>{bus.bienSo || 'Chưa cập nhật'}</td>
+                        <td style={{ textAlign: 'center' }}>{bus.sucChua || 0}</td>
+                        
+                        {/* Hiển thị Text và Màu sắc */}
+                        <td style={{ textAlign: 'right' }}>
+                            <span style={{ color: statusInfo.color, fontWeight: 700 }}>
+                                {statusInfo.text}
+                            </span>
+                        </td>
+                        
+                        <td>
+                        <div className="admin-action-btns" style={{ justifyContent: 'flex-end' }}>
+                            <button className="admin-btn-edit" onClick={() => handleEdit(bus)}><EditIcon sx={{ fontSize: 16 }} /> Sửa</button>
+                            <button className="admin-btn-delete" onClick={() => handleDelete(bus.idXeBus || bus.idXe)}><DeleteIcon sx={{ fontSize: 16 }} /> Xóa</button>
+                        </div>
+                        </td>
+                    </tr>
+                    )})
+                ) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#94a3b8' }}>Chưa có dữ liệu xe buýt.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
+          )}
         </CardContent>
       </Card>
 
-      <BusDialog
+      <BusDialog 
         open={dialogOpen}
-        bus={selectedBus}
         onClose={() => setDialogOpen(false)}
         onSave={handleSave}
+        bus={selectedBus}
       />
     </Box>
   )

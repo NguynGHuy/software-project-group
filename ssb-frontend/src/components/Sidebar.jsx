@@ -1,4 +1,4 @@
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Divider, Box, Typography } from '@mui/material'
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Box, Typography } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus'
 import PersonIcon from '@mui/icons-material/Person'
@@ -7,6 +7,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import SettingsIcon from '@mui/icons-material/Settings'
+import BadgeIcon from '@mui/icons-material/Badge'; // Icon cho Tài xế
 import { useAuth } from '../context/AuthContext'
 
 const Sidebar = ({ open }) => {
@@ -20,7 +21,8 @@ const Sidebar = ({ open }) => {
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin' },
         { text: 'Lịch Trình', icon: <ScheduleIcon />, path: '/admin/schedules' },
         { text: 'Xe Buýt', icon: <DirectionsBusIcon />, path: '/admin/buses' },
-        { text: 'Tuyến xế', icon: <RouteIcon />, path: '/admin/routes' },
+        { text: 'Tuyến xe', icon: <RouteIcon />, path: '/admin/routes' },
+        { text: 'Tài xế', icon: <BadgeIcon />, path: '/admin/drivers' }, // Mới thêm
         { text: 'Học sinh', icon: <PersonIcon />, path: '/admin/students' },
         { text: 'Phụ huynh', icon: <PersonIcon />, path: '/admin/parents' },
         { text: 'Báo cáo', icon: <AssessmentIcon />, path: '/admin/reports' },
@@ -40,7 +42,9 @@ const Sidebar = ({ open }) => {
     return []
   }
 
-  const handleNavigation = (path) => {
+  const handleNavigation = (e, path) => {
+    e.preventDefault()
+    e.stopPropagation()
     navigate(path)
   }
 
@@ -69,8 +73,8 @@ const Sidebar = ({ open }) => {
       <List sx={{ px: 2, py: 2 }}>
         {getMenuItems().map((item, index) => (
           <ListItem key={index} disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton 
-              onClick={() => handleNavigation(item.path)}
+            <ListItemButton
+              onClick={(e) => handleNavigation(e, item.path)}
               selected={location.pathname === item.path}
               sx={{
                 borderRadius: 2,
@@ -88,16 +92,16 @@ const Sidebar = ({ open }) => {
                 },
               }}
             >
-              <ListItemIcon 
-                sx={{ 
+              <ListItemIcon
+                sx={{
                   color: location.pathname === item.path ? 'primary.main' : 'text.secondary',
                   minWidth: 40,
                 }}
               >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
+              <ListItemText
+                primary={item.text}
                 primaryTypographyProps={{
                   fontWeight: location.pathname === item.path ? 600 : 400,
                   fontSize: '0.875rem',

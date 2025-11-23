@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Container, Box, Paper, TextField, Button, Typography, Alert } from '@mui/material'
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus'
 import { useAuth } from '../context/AuthContext'
@@ -6,21 +6,28 @@ import { useAuth } from '../context/AuthContext'
 const Login = () => {
   const [tenDangNhap, setTenDangNhap] = useState('')
   const [matKhau, setMatKhau] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const [localError, setLocalError] = useState('')
+  
+  // Lấy các state và hàm từ Context
+  const { login, loading, error: authError } = useAuth()
+
+  // Đồng bộ lỗi từ Context vào Local component để hiển thị
+  useEffect(() => {
+    if (authError) {
+      setLocalError(authError);
+    }
+  }, [authError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
+    setLocalError('') // Reset lỗi cũ
+    
+    // Gọi hàm login từ Context
+    const success = await login(tenDangNhap, matKhau);
 
-    try {
-      await login(tenDangNhap, matKhau)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại')
-    } finally {
-      setLoading(false)
+    // Nếu thất bại, lỗi đã được cập nhật vào authError (và useEffect sẽ bắt lấy nó)
+    if (!success) {
+      console.log("Đăng nhập thất bại ở View");
     }
   }
 
@@ -68,9 +75,10 @@ const Login = () => {
             </Typography>
           </Box>
 
-          {error && (
+          {/* Hiển thị lỗi nếu có */}
+          {(localError || authError) && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+              {localError || authError}
             </Alert>
           )}
 
@@ -85,12 +93,8 @@ const Login = () => {
               required
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#2a2a2a',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#42a5f5',
-                  },
+                  '& fieldset': { borderColor: '#2a2a2a' },
+                  '&:hover fieldset': { borderColor: '#42a5f5' },
                 },
               }}
             />
@@ -105,12 +109,8 @@ const Login = () => {
               required
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#2a2a2a',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#42a5f5',
-                  },
+                  '& fieldset': { borderColor: '#2a2a2a' },
+                  '&:hover fieldset': { borderColor: '#42a5f5' },
                 },
               }}
             />
@@ -131,7 +131,7 @@ const Login = () => {
                 },
               }}
             >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
             </Button>
           </form>
 
