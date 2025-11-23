@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = '/api'
+const API_URL = 'http://localhost:5000/api'
 
 const api = axios.create({
   baseURL: API_URL,
@@ -14,7 +14,7 @@ const api = axios.create({
 export const authService = {
   login: (tenDangNhap, matKhau) => api.post('/auth/login', { username: tenDangNhap, password: matKhau }),
   logout: () => api.post('/auth/logout'),
-  checkSession: () => api.get('/auth/session'),
+  checkSession: () => api.get('/auth/check'),
 }
 
 // Bus API

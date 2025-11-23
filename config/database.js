@@ -1,36 +1,34 @@
-const sql = require('mssql');
+import sql from 'mssql';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const config = {
     user: 'sa',
     password: '123456',
-    server: 'DESKTOP-UKN1BR0', // chỉ hostname, không \instance
-    port: 1435,                 // port cố định của instance MSSQLSERVER02
+    server: 'DESKTOP-UKN1BR0',
     database: 'CNPM',
+    port: 1435, 
     options: {
         encrypt: false,
-        trustServerCertificate: true
-    }
+        trustServerCertificate: true,
+    },
 };
 
-let poolPromise;
+const poolPromise = new sql.ConnectionPool(config)
+    .connect()
+    .then(pool => {
+        console.log('✅ Connected to SQL Server');
+        return pool;
+    })
+    .catch(err => {
+        console.error('❌ Database Connection Failed! Bad Config: ', err);
+        process.exit(1);
+    });
 
-try {
-    poolPromise = new sql.ConnectionPool(config)
-        .connect()
-        .then(pool => {
-            console.log('Kết nối SQL Server thành công!');
-            return pool;
-        })
-        .catch(err => {
-            console.log('Lỗi kết nối SQL Server: ', err);
-            return null;
-        });
-} catch (err) {
-    console.log('Lỗi khởi tạo kết nối: ', err);
-    poolPromise = Promise.resolve(null);
-}
-
-module.exports = {
-    sql,
-    poolPromise
+export const connectDB = async () => {
+    return poolPromise;
 };
+
+export const pool = poolPromise;
+
+export { sql };
