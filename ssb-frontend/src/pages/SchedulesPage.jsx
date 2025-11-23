@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { scheduleService, routeService, busService, driverService } from '../services/api' 
 import ScheduleDialog from '../components/ScheduleDialog'
-
+import '../styles/admin.css'
 const SchedulesPage = () => {
   const [schedules, setSchedules] = useState([])
   const [loading, setLoading] = useState(true)

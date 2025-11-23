@@ -22,7 +22,7 @@ import { scheduleService, studentService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import useRealTimeTracking from '../hooks/useRealTimeTracking'
 import MapComponent from '../components/MapComponent'
-
+import '../styles/admin.css'
 const DriverDashboard = () => {
   const { user } = useAuth()
   const [schedule, setSchedule] = useState(null)

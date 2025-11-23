@@ -17,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { busService, studentService, routeService, scheduleService } from '../services/api'
 import MapComponent from '../components/MapComponent'
 import BusDialog from '../components/BusDialog' 
-
+import '../styles/admin.css'
 const AdminDashboard = () => {
   const [buses, setBuses] = useState([])
   const [students, setStudents] = useState([])

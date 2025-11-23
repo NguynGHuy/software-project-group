@@ -11,7 +11,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
-
+import '../styles/admin.css'
 const ProfilePage = () => {
   const [settings, setSettings] = useState({ emailNoti: true, smsNoti: false, twoFactor: true })
 

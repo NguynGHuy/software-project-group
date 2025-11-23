@@ -5,15 +5,11 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
-import DirectionsBusIcon from '@mui/icons-material/DirectionsBus'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { parentService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import StudentCard from "../parent/components/StudentCard"
 
-// ĐÚNG ĐƯỜNG DẪN – StudentCard nằm trong src/components/
-import StudentCard from "../parent/components/StudentCard"   // CHỈNH DÒNG NÀY LÀ XONG!
-
-import '../styles/parent.css'
+// Không cần import css riêng ở đây nữa vì ParentLayout đã import rồi
 
 const ParentDashboard = () => {
   const { user } = useAuth()
@@ -47,7 +43,6 @@ const ParentDashboard = () => {
           driver: child.tenTaiXe || 'Chưa có',
           driverPhone: child.sdtTaiXe || '0901234567',
           routeName: child.tenTuyen || 'Chưa có tuyến',
-          // Dùng để giả lập vị trí xe (sau này thay bằng socket)
           lat: 10.762622,
           lng: 106.660172,
         }))
@@ -76,47 +71,50 @@ const ParentDashboard = () => {
     }
   }
 
+  // --- GIAO DIỆN ĐÃ ĐƯỢC LÀM GỌN ĐỂ CHẠY TRONG LAYOUT ---
   return (
-    <div className="parent-app">
-      <Box sx={{ maxWidth: '650px', margin: '0 auto' }}>
-        <p className="greeting">
-          Xin chào, {user?.detail?.hoTen || 'Phụ huynh'}
-        </p>
+    <Box sx={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
+      
+      {/* BỎ HEADER GIẢ VÌ LAYOUT ĐÃ CÓ HEADER RỒI */}
 
-        <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: 3, color: '#fff' }}>
-          Con của bạn
-        </Typography>
+      <p className="greeting">
+        Xin chào, {user?.detail?.hoTen || 'Phụ huynh'}
+      </p>
 
-        {loading && (
-          <Box textAlign="center" py={6}>
-            <CircularProgress size={36} sx={{ color: '#666' }} />
-          </Box>
-        )}
+      <Typography sx={{ fontSize: '1.1rem', fontWeight: 600, mb: 3, color: '#94a3b8' }}>
+        Danh sách học sinh
+      </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+      {loading && (
+        <Box textAlign="center" py={6}>
+          <CircularProgress size={36} sx={{ color: '#666' }} />
+        </Box>
+      )}
 
-        {!loading && children.length === 0 && (
-          <Box className="card" textAlign="center" py={6}>
-            <Typography color="#94a3b8">
-              Chưa có thông tin học sinh được liên kết
-            </Typography>
-          </Box>
-        )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-        {/* DANH SÁCH HỌC SINH – ĐÃ HOÀN HẢO */}
-        {children.map((child, index) => (
-          <StudentCard
-            key={child.id}
-            student={child}
-            isInitiallyExpanded={index === 0}   // HS đầu tự mở
-          />
-        ))}
-      </Box>
-    </div>
+      {!loading && children.length === 0 && (
+        <Box className="card" textAlign="center" py={6} sx={{ bgcolor: '#111', borderRadius: 2, p: 3, border: '1px solid #333' }}>
+          <Typography color="#94a3b8">
+            Chưa có thông tin học sinh được liên kết
+          </Typography>
+        </Box>
+      )}
+
+      {children.map((child, index) => (
+        <StudentCard
+          key={child.id}
+          student={child}
+          isInitiallyExpanded={index === 0}
+        />
+      ))}
+
+      <Box sx={{ height: 40 }} />
+    </Box>
   )
 }
 

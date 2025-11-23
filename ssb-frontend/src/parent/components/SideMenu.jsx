@@ -1,5 +1,5 @@
 import React from 'react';
-import './parent.css';
+import '../../styles/parent.css';
 
 export default function SideMenu({ isOpen, onClose }) {
   if (!isOpen) {

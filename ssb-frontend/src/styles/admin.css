@@ -1,180 +1,29 @@
-/* Admin Dashboard Styles */
-.admin-stats-card {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);
-  border: 1px solid #1e293b;
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s ease;
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --primary-color: #3b82f6;
+  --border-color: #334155;
 }
 
-.admin-stats-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary);
-  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.admin-stats-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
-.admin-stats-icon.primary {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-}
-
-.admin-stats-icon.success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.admin-stats-icon.warning {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.admin-stats-icon.info {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-}
-
-.admin-table-container {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.admin-table thead tr {
-  background: rgba(15, 23, 42, 0.6);
-  border-bottom: 1px solid #1e293b;
-}
-
-.admin-table th {
-  padding: 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #94a3b8;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.admin-table td {
-  padding: 16px;
-  border-bottom: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-
-.admin-table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.admin-table tbody tr:hover {
-  background: rgba(14, 165, 233, 0.05);
-}
-
-.admin-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.admin-search-input {
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 12px 16px;
-  color: #e2e8f0;
-  width: 100%;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.admin-search-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.admin-search-input::placeholder {
-  color: #64748b;
-}
-
-/* Action Buttons */
-.admin-action-btns {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.admin-btn-edit {
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid #0ea5e9;
-  color: #0ea5e9;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.admin-btn-edit:hover {
-  background: rgba(14, 165, 233, 0.1);
-  transform: translateY(-1px);
-}
-
-.admin-btn-delete {
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.admin-btn-delete:hover {
-  background: rgba(239, 68, 68, 0.1);
-  transform: translateY(-1px);
-}
-
-.admin-btn-add {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  border: none;
-  color: white;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-}
-
-.admin-btn-add:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
-}
-
-/* Page Header */
+/* --- ADMIN PAGE HEADER --- */
 .admin-page-header {
   display: flex;
   justify-content: space-between;
@@ -183,55 +32,151 @@
 }
 
 .admin-page-title {
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
-  margin: 0;
+  color: var(--text-primary);
 }
 
-/* Map Container */
-.admin-map-container {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-}
-
-.admin-map-title {
-  font-size: 1.125rem;
+/* --- BUTTONS --- */
+.admin-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-weight: 600;
-  color: #f1f5f9;
-  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-/* Status Chips */
-.chip-active {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+.admin-btn-add:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+}
+
+.admin-action-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-btn-edit, .admin-btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.admin-btn-edit:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border-color: #60a5fa;
+}
+
+.admin-btn-delete:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border-color: #f87171;
+}
+
+/* --- SEARCH INPUT --- */
+.admin-search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 16px;
+  background-color: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.admin-search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* --- TABLE STYLES --- */
+.admin-table-container {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden; /* Bo tròn góc bảng */
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background-color: #1a2236; /* Màu nền header bảng */
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 16px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* --- STATUS CHIPS (Trạng thái) --- */
+.chip-active, .chip-inactive {
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
   display: inline-block;
+}
+
+.chip-active {
+  background-color: rgba(74, 222, 128, 0.1);
+  color: #4ade80; /* Xanh lá */
 }
 
 .chip-inactive {
-  background: rgba(100, 116, 139, 0.15);
-  color: #64748b;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  display: inline-block;
+  background-color: rgba(248, 113, 113, 0.1);
+  color: #f87171; /* Đỏ */
 }
 
-.chip-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  display: inline-block;
+/* --- SCROLLBAR (Thanh cuộn đẹp hơn) --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

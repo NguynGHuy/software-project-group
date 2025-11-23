@@ -21,7 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
 import { studentService, routeService, parentService } from '../services/api'
 import StudentDialog from '../components/StudentDialog'
-
+import '../styles/admin.css'
 const StudentsPage = () => {
   const [students, setStudents] = useState([])
   const [routes, setRoutes] = useState([])
