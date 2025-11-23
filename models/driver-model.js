@@ -1,13 +1,12 @@
-// models/driver-model.js
-const { sql, poolPromise } = require('../config/database.js');
+import { sql, pool } from '../config/database.js';
 
 class Driver {
     // GET tất cả tài xế
     static async getAll() {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const result = await pool.request()
+        const result = await db.request()
             .query(`
                 SELECT 
                     t.idTaiXe, t.hoTen, t.soDienThoai, t.email, t.trangThai,
@@ -22,10 +21,10 @@ class Driver {
 
     // GET tài xế theo id
     static async getById(id) {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const result = await pool.request()
+        const result = await db.request()
             .input('id', sql.Int, id)
             .query(`
                 SELECT 
@@ -42,10 +41,10 @@ class Driver {
     static async create(driverData) {
         const { hoTen, soDienThoai, email, taiKhoan, matKhau } = driverData;
 
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const transaction = new sql.Transaction(pool);
+        const transaction = new sql.Transaction(db);
         await transaction.begin();
 
         try {
@@ -75,7 +74,7 @@ class Driver {
             // 3. Thêm vào TAIKHOAN
             const accountResult = await transaction.request()
                 .input('taiKhoan', sql.NVarChar, taiKhoan)
-                .input('matKhau', sql.NVarChar, matKhau) // !!! Cần mã hóa mật khẩu ở đây
+                .input('matKhau', sql.NVarChar, matKhau) 
                 .input('trangThai', sql.Int, 1)
                 .input('vaiTro', sql.NVarChar, 'TAI_XE')
                 .input('idTaiXe', sql.Int, newDriverId)
@@ -98,17 +97,16 @@ class Driver {
 
         } catch (err) {
             await transaction.rollback();
-            throw err; // Ném lỗi để controller bắt
+            throw err; 
         }
     }
 
     // PUT cập nhật tài xế
     static async update(id, driverData) {
         const { hoTen, soDienThoai, email, trangThai } = driverData;
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        // Chỉ cập nhật bảng TAIXE. (Việc đổi mật khẩu/tài khoản nên là 1 endpoint riêng)
         let updates = [];
         if (hoTen !== undefined) updates.push('hoTen = @hoTen');
         if (soDienThoai !== undefined) updates.push('soDienThoai = @soDienThoai');
@@ -119,7 +117,7 @@ class Driver {
             return { message: 'Không có thông tin cần cập nhật' };
         }
 
-        const request = pool.request().input('id', sql.Int, id);
+        const request = db.request().input('id', sql.Int, id);
         if (hoTen !== undefined) request.input('hoTen', sql.NVarChar, hoTen);
         if (soDienThoai !== undefined) request.input('soDienThoai', sql.NVarChar, soDienThoai);
         if (email !== undefined) request.input('email', sql.NVarChar, email);
@@ -140,24 +138,24 @@ class Driver {
 
     // DELETE (vô hiệu hóa) tài xế
     static async remove(id) {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
         // 1. Kiểm tra ràng buộc (ví dụ: lịch trình đang chạy)
-        const checkUsage = await pool.request()
+        const checkUsage = await db.request()
             .input('id', sql.Int, id)
             .query(`
                 SELECT COUNT(*) as count 
                 FROM LICHTRINH 
                 WHERE idTaiXe = @id AND trangThai = 'IN_PROGRESS' 
-            `); // Giả sử trạng thái là 'IN_PROGRESS'
+            `);
 
         if (checkUsage.recordset[0].count > 0) {
             throw new Error('Không thể vô hiệu hóa tài xế đang thực hiện lịch trình');
         }
 
         // 2. Bắt đầu transaction
-        const transaction = new sql.Transaction(pool);
+        const transaction = new sql.Transaction(db);
         await transaction.begin();
 
         try {
@@ -189,4 +187,4 @@ class Driver {
     }
 }
 
-module.exports = Driver;
+export default Driver;

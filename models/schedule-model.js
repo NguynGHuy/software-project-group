@@ -1,5 +1,4 @@
-// models/schedule-model.js
-const { sql, poolPromise } = require('../config/database.js');
+import { sql, pool } from '../config/database.js';
 
 class Schedule {
     /**
@@ -9,10 +8,10 @@ class Schedule {
     static async create(scheduleData) {
         const { idTaiXe, idXe, idQuanLy, ngayThucHien, idTuyen } = scheduleData;
 
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const transaction = new sql.Transaction(pool);
+        const transaction = new sql.Transaction(db);
         await transaction.begin();
 
         try {
@@ -43,26 +42,17 @@ class Schedule {
             // 3. Thêm từng học sinh vào bảng DIEMDANH
             if (students.recordset.length > 0) {
                 let queryInsert = 'INSERT INTO DIEMDANH (idLichTrinh, idHocSinh, trangThai) VALUES ';
-                const params = [];
-
-                students.recordset.forEach((student, index) => {
-                    const scheduleIdParam = `scheduleId${index}`;
-                    const studentIdParam = `studentId${index}`;
-                    const statusParam = `status${index}`;
-
-                    queryInsert += `(@${scheduleIdParam}, @${studentIdParam}, @${statusParam}),`;
-
-                    params.push({ name: scheduleIdParam, type: sql.Int, value: newScheduleId });
-                    params.push({ name: studentIdParam, type: sql.Int, value: student.idHocSinh });
-                    params.push({ name: statusParam, type: sql.NVarChar, value: 'VANG' }); // Trạng thái mặc định
-                });
-
-                // Xóa dấu phẩy cuối cùng
-                queryInsert = queryInsert.slice(0, -1);
-
-                const request = transaction.request();
-                params.forEach(p => request.input(p.name, p.type, p.value));
-                await request.query(queryInsert);
+                // Lưu ý: Request của mssql không hỗ trợ dynamic input param dễ dàng trong vòng lặp chuỗi
+                // Nên ta sẽ loop insert từng cái hoặc tạo query string cẩn thận.
+                // Để an toàn và đơn giản với Transaction, ta loop insert.
+                
+                for (const student of students.recordset) {
+                     await transaction.request()
+                        .input('idLichTrinh', sql.Int, newScheduleId)
+                        .input('idHocSinh', sql.Int, student.idHocSinh)
+                        .input('trangThai', sql.NVarChar, 'VANG')
+                        .query(`INSERT INTO DIEMDANH (idLichTrinh, idHocSinh, trangThai) VALUES (@idLichTrinh, @idHocSinh, @trangThai)`);
+                }
             }
 
             await transaction.commit();
@@ -78,16 +68,16 @@ class Schedule {
      * GET: Lấy tất cả lịch trình (Thông tin chung)
      */
     static async getAll() {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const result = await pool.request()
+        const result = await db.request()
             .query(`
                 SELECT 
-                    l.idLichTrinh, l.ngayThucHien, l.trangThai,
+                    l.idLichTrinh, l.ngayThucHien, l.trangThai, l.gioBatDau,
                     t.tenTuyen,
-                    tx.hoTen as tenTaiXe,
-                    x.bienSo
+                    tx.hoTen as tenTaiXe, tx.hoTen as HoTenTaiXe,
+                    x.bienSo, x.bienSo as BienSoXe
                 FROM LICHTRINH l
                 LEFT JOIN TUYENDUONG t ON l.idTuyen = t.idTuyenDuong
                 LEFT JOIN TAIXE tx ON l.idTaiXe = tx.idTaiXe
@@ -101,11 +91,11 @@ class Schedule {
      * GET: Lấy chi tiết 1 lịch trình (bao gồm danh sách điểm danh)
      */
     static async getById(id) {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
         // 1. Lấy thông tin lịch trình
-        const scheduleResult = await pool.request()
+        const scheduleResult = await db.request()
             .input('id', sql.Int, id)
             .query(`
                 SELECT 
@@ -128,7 +118,7 @@ class Schedule {
         const schedule = scheduleResult.recordset[0];
 
         // 2. Lấy danh sách điểm danh của lịch trình
-        const attendanceResult = await pool.request()
+        const attendanceResult = await db.request()
             .input('id', sql.Int, id)
             .query(`
                 SELECT 
@@ -150,17 +140,17 @@ class Schedule {
      * PUT: Cập nhật trạng thái lịch trình (VD: READY -> IN_PROGRESS -> DONE)
      */
     static async updateStatus(id, status) {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
         let query = 'UPDATE LICHTRINH SET trangThai = @status ';
         // Nếu bắt đầu, cập nhật luôn giờ bắt đầu
         if (status === 'IN_PROGRESS') {
-            query += ', gioBatDau = GETDATE() ';
+            query += ', gioBatDau = CONVERT(time, GETDATE()) ';
         }
         query += ' OUTPUT INSERTED.idLichTrinh, INSERTED.trangThai WHERE idLichTrinh = @id';
 
-        const result = await pool.request()
+        const result = await db.request()
             .input('id', sql.Int, id)
             .input('status', sql.NVarChar, status)
             .query(query);
@@ -175,10 +165,10 @@ class Schedule {
      * PUT: Cập nhật trạng thái điểm danh cho 1 học sinh
      */
     static async updateAttendance(scheduleId, studentId, status) {
-        const pool = await poolPromise;
-        if (!pool) throw new Error('Không thể kết nối DB');
+        const db = await pool;
+        if (!db) throw new Error('Không thể kết nối DB');
 
-        const result = await pool.request()
+        const result = await db.request()
             .input('scheduleId', sql.Int, scheduleId)
             .input('studentId', sql.Int, studentId)
             .input('status', sql.NVarChar, status) // VD: 'DA_DON', 'DA_TRA', 'VANG'
@@ -196,4 +186,4 @@ class Schedule {
     }
 }
 
-module.exports = Schedule;
+export default Schedule;
