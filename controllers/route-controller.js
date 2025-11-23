@@ -1,5 +1,5 @@
-const Route = require('../models/route-model.js');
-// Helper function để chuẩn hóa giờ
+import Route from '../models/route-model.js';
+
 function normalizeTimeStr(t) {
     if (!t) return null;
     const m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(t.trim());
@@ -10,164 +10,73 @@ function normalizeTimeStr(t) {
     return `${hh}:${mm}:${ss}`;
 }
 
-// GET /api/routes
-exports.getAllRoutes = async (req, res) => {
+export const getAllRoutes = async (req, res) => {
     try {
         const data = await Route.getAll();
-        res.json({
-            success: true,
-            data: data
-        });
+        res.json({ success: true, data });
     } catch (err) {
-        console.error('Lỗi khi lấy danh sách tuyến:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server: ' + err.message
-        });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };
 
-// GET /api/routes/:id
-exports.getRouteById = async (req, res) => {
+export const getRouteById = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         const route = await Route.getById(id);
-
-        if (!route) {
-            return res.status(404).json({
-                success: false,
-                message: 'Không tìm thấy tuyến xe'
-            });
-        }
-
-        res.json({
-            success: true,
-            data: route
-        });
+        if (!route) return res.status(404).json({ success: false, message: 'Không tìm thấy tuyến xe' });
+        res.json({ success: true, data: route });
     } catch (err) {
-        console.error('Lỗi khi lấy thông tin tuyến:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server: ' + err.message
-        });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };
 
-// POST /api/routes
-exports.createRoute = async (req, res) => {
-    console.log('[v0] Create route request:', req.body);
-    
-    const { tenTuyen, idXeBus, gioBatDau, gioKetThuc, diemDung } = req.body || {};
+export const createRoute = async (req, res) => {
+    const { tenTuyen, gioBatDau, gioKetThuc } = req.body || {};
+    if (!tenTuyen || !gioBatDau || !gioKetThuc) return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
 
-    // Validate đầu vào
-    if (!tenTuyen || !gioBatDau || !gioKetThuc) {
-        return res.status(400).json({
-            success: false,
-            message: 'Thiếu thông tin bắt buộc (tenTuyen, gioBatDau, gioKetThuc)'
-        });
-    }
-
-    // Chuẩn hóa giờ
     const gioBatDauStr = normalizeTimeStr(gioBatDau);
     const gioKetThucStr = normalizeTimeStr(gioKetThuc);
-    if (!gioBatDauStr || !gioKetThucStr) {
-        return res.status(400).json({
-            success: false,
-            message: 'Định dạng giờ không hợp lệ (HH:mm hoặc HH:mm:ss)'
-        });
-    }
+    if (!gioBatDauStr || !gioKetThucStr) return res.status(400).json({ success: false, message: 'Giờ không hợp lệ' });
 
     try {
-        const routeData = { tenTuyen, idXeBus, gioBatDauStr, gioKetThucStr, diemDung };
-        console.log('[v0] Calling Route.create with:', routeData);
-        const newRoute = await Route.create(routeData);
-
-        res.status(201).json({
-            success: true,
-            message: 'Thêm tuyến xe thành công!',
-            data: newRoute
-        });
+        const newRoute = await Route.create({ ...req.body, gioBatDauStr, gioKetThucStr });
+        res.status(201).json({ success: true, message: 'Thêm tuyến thành công!', data: newRoute });
     } catch (err) {
-        console.error('[v0] Create route error:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server: ' + err.message
-        });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };
 
-// PUT /api/routes/:id
-exports.updateRoute = async (req, res) => {
-    console.log('[v0] Update route request:', { id: req.params.id, body: req.body });
-    
-    const { tenTuyen, idXeBus, gioBatDau, gioKetThuc, diemDung } = req.body || {};
+export const updateRoute = async (req, res) => {
     const id = parseInt(req.params.id);
-
-    // Chuẩn hóa giờ nếu có
+    const { gioBatDau, gioKetThuc } = req.body || {};
     let gioBatDauStr = null, gioKetThucStr = null;
+
     if (gioBatDau) {
         gioBatDauStr = normalizeTimeStr(gioBatDau);
-        if (!gioBatDauStr) {
-            return res.status(400).json({
-                success: false,
-                message: 'Định dạng giờ bắt đầu không hợp lệ (HH:mm hoặc HH:mm:ss)'
-            });
-        }
+        if (!gioBatDauStr) return res.status(400).json({ success: false, message: 'Giờ bắt đầu không hợp lệ' });
     }
     if (gioKetThuc) {
         gioKetThucStr = normalizeTimeStr(gioKetThuc);
-        if (!gioKetThucStr) {
-            return res.status(400).json({
-                success: false,
-                message: 'Định dạng giờ kết thúc không hợp lệ (HH:mm hoặc HH:mm:ss)'
-            });
-        }
+        if (!gioKetThucStr) return res.status(400).json({ success: false, message: 'Giờ kết thúc không hợp lệ' });
     }
 
     try {
-        const routeData = { tenTuyen, idXeBus, gioBatDauStr, gioKetThucStr, diemDung };
-        console.log('[v0] Calling Route.update with:', { id, routeData });
-        const updatedRoute = await Route.update(id, routeData);
-
-        res.json({
-            success: true,
-            message: 'Cập nhật tuyến xe thành công!',
-            data: updatedRoute
-        });
+        const updatedRoute = await Route.update(id, { ...req.body, gioBatDauStr, gioKetThucStr });
+        res.json({ success: true, message: 'Cập nhật thành công!', data: updatedRoute });
     } catch (err) {
-        console.error('[v0] Update route error:', err);
-        if (err.message === 'Không tìm thấy tuyến xe') {
-            return res.status(404).json({ success: false, message: err.message });
-        }
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server: ' + err.message
-        });
+        if (err.message === 'Không tìm thấy tuyến xe') return res.status(404).json({ success: false, message: err.message });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };
 
-// DELETE /api/routes/:id
-exports.deleteRoute = async (req, res) => {
-    const id = parseInt(req.params.id);
-
+export const deleteRoute = async (req, res) => {
     try {
+        const id = parseInt(req.params.id);
         const deletedRoute = await Route.remove(id);
-        res.json({
-            success: true,
-            message: 'Xóa tuyến xe thành công!',
-            data: deletedRoute
-        });
+        res.json({ success: true, message: 'Xóa thành công!', data: deletedRoute });
     } catch (err) {
-        console.error('Lỗi khi xóa tuyến xe:', err);
-        if (err.message.includes('đang được sử dụng')) {
-            return res.status(400).json({ success: false, message: err.message });
-        }
-        if (err.message === 'Tuyến xe không tồn tại') {
-            return res.status(404).json({ success: false, message: err.message });
-        }
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server: ' + err.message
-        });
+        if (err.message.includes('đang được sử dụng')) return res.status(400).json({ success: false, message: err.message });
+        if (err.message === 'Tuyến xe không tồn tại') return res.status(404).json({ success: false, message: err.message });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 };

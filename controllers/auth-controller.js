@@ -1,8 +1,6 @@
-// controllers/auth-controller.js
-const { sql, poolPromise } = require('../config/database.js');
+import { sql, connectDB } from '../config/database.js';
 
-
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
     const { username, password } = req.body || {};
     
     console.log('[v0] Login attempt:', { username });
@@ -12,23 +10,17 @@ exports.login = async (req, res) => {
     }
 
     try {
-        const pool = await poolPromise;
+        const pool = await connectDB();
         
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
             .input('password', sql.NVarChar, password)
             .query(`
                 SELECT 
-                    tk.idTaiKhoan,
-                    tk.taiKhoan,
-                    tk.vaiTro,
-                    tk.idPhuHuynh,
-                    tk.idTaiXe,
-                    tk.idQuanLy,
-                    ph.hoTen AS phuHuynhName,
-                    ph.soDienThoai AS phuHuynhPhone,
-                    tx.hoTen AS taiXeName,
-                    tx.soDienThoai AS taiXePhone,
+                    tk.idTaiKhoan, tk.taiKhoan, tk.vaiTro,
+                    tk.idPhuHuynh, tk.idTaiXe, tk.idQuanLy,
+                    ph.hoTen AS phuHuynhName, ph.soDienThoai AS phuHuynhPhone,
+                    tx.hoTen AS taiXeName, tx.soDienThoai AS taiXePhone,
                     ql.hoTen AS quanLyName
                 FROM TAIKHOAN tk
                 LEFT JOIN PHUHUYNH ph ON tk.idPhuHuynh = ph.idPhuHuynh
@@ -39,10 +31,8 @@ exports.login = async (req, res) => {
                   AND tk.trangThai = 1
             `);
         
-        console.log('[v0] Query result:', result.recordset.length, 'user(s) found');
-        
         if (result.recordset.length === 0) {
-            return res.json({ success: false, message: 'Sai thông tin đăng nhập!' });
+            return res.status(401).json({ success: false, message: 'Sai thông tin đăng nhập!' });
         }
 
         const user = result.recordset[0];
@@ -50,45 +40,31 @@ exports.login = async (req, res) => {
         
         let detail = {};
         if (role === 'PHU_HUYNH') {
-            detail = {
-                idPhuHuynh: user.idPhuHuynh,
-                hoTen: user.phuHuynhName,
-                soDienThoai: user.phuHuynhPhone
-            };
+            detail = { idPhuHuynh: user.idPhuHuynh, hoTen: user.phuHuynhName, soDienThoai: user.phuHuynhPhone };
         } else if (role === 'TAI_XE') {
-            detail = {
-                idTaiXe: user.idTaiXe,
-                hoTen: user.taiXeName,
-                soDienThoai: user.taiXePhone
-            };
+            detail = { idTaiXe: user.idTaiXe, hoTen: user.taiXeName, soDienThoai: user.taiXePhone };
         } else if (role === 'QUAN_LY') {
-            detail = {
-                idQuanLy: user.idQuanLy,
-                hoTen: user.quanLyName
+            detail = { idQuanLy: user.idQuanLy, hoTen: user.quanLyName };
+        }
+        
+        // Lưu vào session
+        if (req.session) {
+            req.session.user = {
+                idTaiKhoan: user.idTaiKhoan,
+                username: user.taiKhoan,
+                role: user.vaiTro,
+                detail: detail
             };
         }
-        
-        let redirectUrl = '';
-        switch (role) {
-            case 'PHU_HUYNH': redirectUrl = '/parent'; break;
-            case 'TAI_XE': redirectUrl = '/driver'; break;
-            case 'QUAN_LY': redirectUrl = '/admin'; break;
-            default: redirectUrl = '/login';
-        }
 
-        req.session.user = {
-            idTaiKhoan: user.idTaiKhoan,
-            username: user.taiKhoan,
-            role: user.vaiTro,
-            detail: detail
-        };
-
-        console.log('[v0] Login successful:', req.session.user);
-        
         res.json({
             success: true,
-            user: req.session.user,
-            redirectUrl: redirectUrl,
+            user: {
+                idTaiKhoan: user.idTaiKhoan,
+                username: user.taiKhoan,
+                role: user.vaiTro,
+                detail: detail
+            },
             message: `Đăng nhập thành công với vai trò ${role}`
         });
 
@@ -98,13 +74,29 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.logout = (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).json({ success: false, message: 'Lỗi khi đăng xuất' });
-        }
-        res.clearCookie('connect.sid');
+export const logout = (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) return res.status(500).json({ success: false, message: 'Lỗi khi đăng xuất' });
+            res.clearCookie('connect.sid');
+            res.json({ success: true, message: 'Đăng xuất thành công' });
+        });
+    } else {
         res.json({ success: true, message: 'Đăng xuất thành công' });
-    });
+    }
 };
-
+export const checkSession = (req, res) => {
+    if (req.session && req.session.user) {
+        // Session còn tồn tại -> Trả về thông tin user
+        return res.json({ 
+            success: true, 
+            user: req.session.user 
+        });
+    } else {
+        // Session hết hạn hoặc không tồn tại
+        return res.status(401).json({ 
+            success: false, 
+            message: 'Chưa đăng nhập hoặc phiên đã hết hạn' 
+        });
+    }
+};

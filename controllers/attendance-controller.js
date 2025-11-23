@@ -1,4 +1,3 @@
-// Attendance Controller - To be implemented
-module.exports = {
-  // TODO: Implement attendance tracking functions
+export default {
+    // TODO: Implement attendance functions later
 };
