@@ -1,328 +1,96 @@
-import { useState, useEffect } from 'react'
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
-  Button,
-  Grid,
-  Alert,
-  Switch,
-  FormControlLabel,
-} from '@mui/material'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import CancelIcon from '@mui/icons-material/Cancel'
-import WarningIcon from '@mui/icons-material/Warning'
-import GpsFixedIcon from '@mui/icons-material/GpsFixed'
-import { scheduleService, studentService } from '../services/api'
-import { useAuth } from '../context/AuthContext'
-import useRealTimeTracking from '../hooks/useRealTimeTracking'
-import MapComponent from '../components/MapComponent'
-import '../styles/admin.css'
-const DriverDashboard = () => {
-  const { user } = useAuth()
-  const [schedule, setSchedule] = useState(null)
-  const [students, setStudents] = useState([])
-  const [attendance, setAttendance] = useState({})
-  const [tripStarted, setTripStarted] = useState(false)
-  const [gpsSimulation, setGpsSimulation] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState({ lat: 10.762622, lng: 106.660172 })
-  const { connected, updateLocation } = useRealTimeTracking()
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaPlay, FaStop, FaExclamationTriangle, FaCommentDots } from "react-icons/fa";
 
-  useEffect(() => {
-    loadData()
-  }, [])
+// Import các component con (Code ở mục 2 và 3 bên dưới)
+import TripStatusCard from "../driver/components/TripStatusCard";
+import StudentPickupCard from "../driver/components/StudentPickupCard";
 
-  useEffect(() => {
-    if (gpsSimulation && tripStarted) {
-      const interval = setInterval(() => {
-        setCurrentLocation(prev => {
-          const newLat = prev.lat + (Math.random() - 0.5) * 0.001
-          const newLng = prev.lng + (Math.random() - 0.5) * 0.001
-          const speed = Math.floor(Math.random() * 50) + 20
-          const heading = Math.floor(Math.random() * 360)
-          
-          updateLocation(1, newLat, newLng, speed, heading)
-          
-          return { lat: newLat, lng: newLng }
-        })
-      }, 3000)
+// Dữ liệu giả lập ban đầu
+const MOCK_TRIP_INFO = {
+  routeName: "Chuyến đón sáng",
+  description: "Cầu Giấy - Trường DEF",
+  startTime: "07:00",
+  nextStop: "Trạm 3/5",
+};
 
-      return () => clearInterval(interval)
-    }
-  }, [gpsSimulation, tripStarted, updateLocation])
+const INITIAL_STUDENTS = [
+  { id: 1, name: "Nguyễn Văn A", className: "Lớp 3C", address: "780 Đống Đa, Hà Nội", time: "07:15", status: "waiting" },
+  { id: 2, name: "Trần Thị B", className: "Lớp 3C", address: "123 Cầu Giấy, Hà Nội", time: "07:25", status: "waiting" },
+  { id: 3, name: "Lê Hoàng C", className: "Lớp 4A", address: "456 Kim Mã, Hà Nội", time: "07:30", status: "picked" }, // Đã lên xe
+  { id: 4, name: "Phạm Văn D", className: "Lớp 5B", address: "12 Láng Hạ, Hà Nội", time: "07:35", status: "waiting" },
+];
 
-  const loadData = async () => {
-    try {
-      const studentRes = await studentService.getAll()
-      const studentsData = Array.isArray(studentRes.data) ? studentRes.data : (studentRes.data?.data || [])
-      setStudents(studentsData.slice(0, 8))
-      
-      const initialAttendance = {}
-      studentsData.slice(0, 8).forEach(student => {
-        initialAttendance[student.idHocSinh] = 'pending'
-      })
-      setAttendance(initialAttendance)
-    } catch (error) {
-      console.error('Failed to load data:', error)
-    }
-  }
+export default function DriverDashboard() {
+  const navigate = useNavigate();
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
 
-  const handleMarkAttendance = (studentId, status) => {
-    setAttendance(prev => ({
-      ...prev,
-      [studentId]: status
-    }))
-  }
+  // Tính toán số liệu Real-time
+  const totalCount = students.length;
+  const pickedCount = students.filter(s => s.status === 'picked').length;
+  const remainingCount = totalCount - pickedCount;
 
+  // Xử lý chuyển trang khi bấm Bắt đầu
   const handleStartTrip = () => {
-    setTripStarted(true)
-    setGpsSimulation(true)
-  }
+    navigate('/driver/trip');
+  };
 
-  const handleReportIncident = () => {
-    alert('Chức năng báo cáo sự cố đang được phát triển')
-  }
+  // Xử lý toggle trạng thái đón
+  const toggleStatus = (id) => {
+    setStudents(prev => prev.map(s => 
+        s.id === id 
+        ? { ...s, status: s.status === 'waiting' ? 'picked' : 'waiting' } 
+        : s
+    ));
+  };
 
-  const attendanceStats = {
-    present: Object.values(attendance).filter(s => s === 'present').length,
-    absent: Object.values(attendance).filter(s => s === 'absent').length,
-    pending: Object.values(attendance).filter(s => s === 'pending').length,
+  const handleEndTrip = () => {
+      if(window.confirm("Kết thúc chuyến đi ngay?")) {
+          alert("Đã kết thúc chuyến!");
+      }
   }
 
   return (
-    <Box sx={{ color: '#ffffff' }}>
-      <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
-        Xin chào, {user?.detail?.hoTen || 'Tài xế'}
-      </Typography>
-      <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
-        Lịch làm việc hôm nay
-      </Typography>
+    <div className="driver-dashboard" style={{ padding: '16px', overflowY: 'auto', height: '100%' }}>
+      {/* 1. Greeting Section */}
+      <div className="greeting-section">
+        <div className="greeting-text">Xin chào, Tài xế Nguyễn Văn A</div>
+        <div className="date-text">Thứ Ba, 30 tháng 9, 2025</div>
+      </div>
 
-      {tripStarted && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          Chuyến đi đã bắt đầu. Vui lòng điểm danh học sinh tại mỗi điểm đón.
-          {connected && <Chip label="GPS TRACKING" color="success" size="small" sx={{ ml: 2 }} />}
-        </Alert>
-      )}
+      {/* 2. Card Trạng Thái Chuyến (Dữ liệu động) */}
+      <TripStatusCard 
+        info={MOCK_TRIP_INFO} 
+        stats={{ total: totalCount, picked: pickedCount, remaining: remainingCount }} 
+      />
 
-      <Card sx={{ bgcolor: '#111111', mb: 2, border: '1px solid #1e293b' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ color: '#ffffff', mb: 2, fontWeight: 600 }}>
-            Thông Tin Chuyến Xe
-          </Typography>
-          <List sx={{ p: 0 }}>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemText 
-                primary={<Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>Tuyến xe</Typography>}
-                secondary={<Typography sx={{ color: '#ffffff', mt: 0.5 }}>Tuyến 1: Quận 1 - Quận 3</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemText 
-                primary={<Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>Biển số xe</Typography>}
-                secondary={<Typography sx={{ color: '#ffffff', mt: 0.5 }}>51A-12345</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemText 
-                primary={<Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>Giờ xuất phát</Typography>}
-                secondary={<Typography sx={{ color: '#ffffff', mt: 0.5 }}>07:00 AM</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemText 
-                primary={<Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>GPS Tracking</Typography>}
-                secondary={
-                  <FormControlLabel
-                    control={
-                      <Switch 
-                        checked={gpsSimulation} 
-                        onChange={(e) => setGpsSimulation(e.target.checked)}
-                        disabled={!tripStarted}
-                        sx={{
-                          '& .MuiSwitch-switchBase.Mui-checked': {
-                            color: '#00ff00',
-                          },
-                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                            backgroundColor: '#00ff00',
-                          },
-                        }}
-                      />
-                    }
-                    label={<Typography sx={{ color: '#ffffff', fontSize: '0.875rem' }}>{gpsSimulation ? "Đang bật" : "Đã tắt"}</Typography>}
-                  />
-                }
-              />
-            </ListItem>
-          </List>
+      {/* 3. Grid 4 Nút Hành Động */}
+      <div className="action-grid">
+        <button className="action-btn-large btn-white" onClick={handleStartTrip}>
+            <FaPlay size={24} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Bắt đầu</span>
+        </button>
+        <button className="action-btn-large btn-dark" onClick={handleEndTrip}>
+            <FaStop size={24} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Kết thúc</span>
+        </button>
+        <button className="action-btn-large btn-red" onClick={() => alert("Mở form báo cáo sự cố")}>
+            <FaExclamationTriangle size={24} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Báo cáo</span>
+        </button>
+        <button className="action-btn-large btn-dark" onClick={() => alert("Mở danh sách tin nhắn")}>
+            <FaCommentDots size={24} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Tin nhắn</span>
+        </button>
+      </div>
 
-          <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Chip 
-              label={`Đã đón: ${attendanceStats.present}`} 
-              sx={{ bgcolor: '#00ff00', color: '#000000', fontWeight: 600 }}
-            />
-            <Chip 
-              label={`Vắng: ${attendanceStats.absent}`} 
-              sx={{ bgcolor: '#ff0000', color: '#ffffff', fontWeight: 600 }}
-            />
-            <Chip 
-              label={`Chờ: ${attendanceStats.pending}`} 
-              sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 600 }}
-            />
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ bgcolor: '#111111', mb: 2, border: '1px solid #1e293b' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ color: '#ffffff', mb: 2, fontWeight: 600 }}>
-            Danh Sách Học Sinh Cần Đón
-          </Typography>
-          <List sx={{ p: 0 }}>
-            {students.map((student) => (
-              <ListItem
-                key={student.idHocSinh}
-                sx={{
-                  bgcolor: attendance[student.idHocSinh] === 'present' 
-                    ? 'rgba(0, 255, 0, 0.1)' 
-                    : attendance[student.idHocSinh] === 'absent'
-                    ? 'rgba(255, 0, 0, 0.1)'
-                    : 'transparent',
-                  mb: 1,
-                  borderRadius: 1,
-                  border: '1px solid #1e293b',
-                  flexDirection: 'column',
-                  alignItems: 'stretch',
-                  px: 2,
-                  py: 1.5
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Box>
-                    <Typography sx={{ color: '#ffffff', fontWeight: 600, mb: 0.5 }}>
-                      {student.hoTen}
-                    </Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
-                      Lớp {student.lop}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant={attendance[student.idHocSinh] === 'present' ? 'contained' : 'outlined'}
-                    size="small"
-                    fullWidth
-                    startIcon={<CheckCircleIcon />}
-                    onClick={() => handleMarkAttendance(student.idHocSinh, 'present')}
-                    disabled={!tripStarted}
-                    sx={{
-                      bgcolor: attendance[student.idHocSinh] === 'present' ? '#00ff00' : 'transparent',
-                      color: attendance[student.idHocSinh] === 'present' ? '#000000' : '#00ff00',
-                      borderColor: '#00ff00',
-                      '&:hover': {
-                        bgcolor: attendance[student.idHocSinh] === 'present' ? '#00cc00' : 'rgba(0, 255, 0, 0.1)',
-                      }
-                    }}
-                  >
-                    Có mặt
-                  </Button>
-                  <Button
-                    variant={attendance[student.idHocSinh] === 'absent' ? 'contained' : 'outlined'}
-                    size="small"
-                    fullWidth
-                    startIcon={<CancelIcon />}
-                    onClick={() => handleMarkAttendance(student.idHocSinh, 'absent')}
-                    disabled={!tripStarted}
-                    sx={{
-                      bgcolor: attendance[student.idHocSinh] === 'absent' ? '#ff0000' : 'transparent',
-                      color: attendance[student.idHocSinh] === 'absent' ? '#ffffff' : '#ff0000',
-                      borderColor: '#ff0000',
-                      '&:hover': {
-                        bgcolor: attendance[student.idHocSinh] === 'absent' ? '#cc0000' : 'rgba(255, 0, 0, 0.1)',
-                      }
-                    }}
-                  >
-                    Vắng
-                  </Button>
-                </Box>
-              </ListItem>
-            ))}
-          </List>
-        </CardContent>
-      </Card>
-
-      {tripStarted && (
-        <Card sx={{ bgcolor: '#111111', mb: 2, border: '1px solid #1e293b' }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ color: '#ffffff', mb: 2, fontWeight: 600 }}>
-              Vị Trí Hiện Tại
-            </Typography>
-            <MapComponent 
-              center={[currentLocation.lat, currentLocation.lng]}
-              buses={[
-                {
-                  idXeBus: 1,
-                  bienSo: '51A-12345',
-                  position: [currentLocation.lat, currentLocation.lng]
-                }
-              ]}
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      <Card sx={{ bgcolor: '#111111', border: '1px solid #1e293b' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ color: '#ffffff', mb: 2, fontWeight: 600 }}>
-            Hành Động
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Button 
-              variant="contained" 
-              fullWidth
-              disabled={tripStarted}
-              onClick={handleStartTrip}
-              startIcon={<GpsFixedIcon />}
-              sx={{
-                bgcolor: tripStarted ? '#1e293b' : '#00ff00',
-                color: tripStarted ? '#64748b' : '#000000',
-                fontWeight: 600,
-                py: 1.5,
-                '&:hover': {
-                  bgcolor: tripStarted ? '#1e293b' : '#00cc00',
-                }
-              }}
-            >
-              {tripStarted ? 'Chuyến đi đang diễn ra' : 'Bắt đầu chuyến đi'}
-            </Button>
-            <Button 
-              variant="outlined" 
-              fullWidth
-              startIcon={<WarningIcon />}
-              onClick={handleReportIncident}
-              sx={{
-                borderColor: '#ff0000',
-                color: '#ff0000',
-                fontWeight: 600,
-                py: 1.5,
-                '&:hover': {
-                  bgcolor: 'rgba(255, 0, 0, 0.1)',
-                  borderColor: '#ff0000',
-                }
-              }}
-            >
-              Báo cáo sự cố
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
-  )
+      {/* 4. Danh sách học sinh cần đón */}
+      <div className="student-list-section">
+        <h3 style={{ color: 'white', fontSize: '1rem', marginBottom: '12px' }}>Danh sách học sinh ({remainingCount} chưa đón)</h3>
+        {students.map(std => (
+            <StudentPickupCard key={std.id} student={std} onToggleStatus={toggleStatus} />
+        ))}
+      </div>
+    </div>
+  );
 }
-
-export default DriverDashboard

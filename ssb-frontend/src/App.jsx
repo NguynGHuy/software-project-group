@@ -6,7 +6,8 @@ import { CircularProgress, Box } from '@mui/material';
 // --- LAYOUT ---
 import AdminLayout from './components/Layout';
 import ParentLayout from './parent/ParentLayout';
-
+import DriverLayout from './driver/DriverLayout';
+import DriverTripPage from './driver/components/DriverTripPage';
 // --- LOGIN ---
 import Login from './pages/Login';
 
@@ -87,12 +88,13 @@ function App() {
       {/* ========================================================= */}
       {/* 2. DRIVER – độc lập, không dùng AdminLayout               */}
       {/* ========================================================= */}
-      <Route path="/driver">
+      <Route path="/driver" element={<DriverLayout />}>
         <Route index element={
           <ProtectedRoute allowedRoles={['TAI_XE']}>
             <DriverDashboard />
           </ProtectedRoute>
         } />
+        <Route path="trip" element={<DriverTripPage />} />
       </Route>
 
       {/* ========================================================= */}

@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react'
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Alert
-} from '@mui/material'
-import { parentService } from '../services/api'
-import { useAuth } from '../context/AuthContext'
+"use client"
+
+import { useState, useEffect } from "react"
+import { Box, Typography, CircularProgress, Alert } from "@mui/material"
+import { parentService, routeService } from "../services/api"
+import { useAuth } from "../context/AuthContext"
+import useRealTimeTracking from "../hooks/useRealTimeTracking"
+
 import StudentCard from "../parent/components/StudentCard"
 
-// Không cần import css riêng ở đây nữa vì ParentLayout đã import rồi
+import "../styles/parent.css"
 
 const ParentDashboard = () => {
   const { user } = useAuth()
   const [children, setChildren] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // Use real-time tracking
+  const { busLocations } = useRealTimeTracking()
 
   useEffect(() => {
     loadData()
@@ -28,32 +29,54 @@ const ParentDashboard = () => {
 
       if (user && user.detail?.idPhuHuynh) {
         const response = await parentService.getStudents(user.detail.idPhuHuynh)
-        const childrenData = Array.isArray(response.data)
-          ? response.data
-          : (response.data?.data || [])
+        const childrenData = Array.isArray(response.data) ? response.data : response.data?.data || []
 
-        const normalized = childrenData.map(child => ({
-          id: child.idHocSinh,
-          name: child.hoTen,
-          className: child.lop,
-          status: mapStatus(child.status),
-          busName: child.xeBus || 'Chưa phân công xe',
-          pickupPoint: child.tenDiemDon || 'Chưa có',
-          pickupTime: child.gioBatDau?.substring(0, 5) || '07:15',
-          driver: child.tenTaiXe || 'Chưa có',
-          driverPhone: child.sdtTaiXe || '0901234567',
-          routeName: child.tenTuyen || 'Chưa có tuyến',
-          lat: 10.762622,
-          lng: 106.660172,
-        }))
+        const normalized = await Promise.all(
+          childrenData.map(async (child) => {
+            // Get route details with stops for pickup point coordinates
+            let pickupLat = 10.88
+            let pickupLng = 106.59
+
+            if (child.idTuyen && child.diemDon) {
+              try {
+                const routeRes = await routeService.getDetails(child.idTuyen)
+                if (routeRes.data.success) {
+                  const stop = routeRes.data.data.stops.find((s) => s.idDiemDung === child.diemDon)
+                  if (stop) {
+                    pickupLat = stop.viDo
+                    pickupLng = stop.kinhDo
+                  }
+                }
+              } catch (err) {
+                console.error("[v0] Error loading route details:", err)
+              }
+            }
+
+            return {
+              id: child.idHocSinh,
+              name: child.hoTen,
+              className: child.lop,
+              status: mapStatus(child.status),
+              busId: child.idXeBus,
+              busName: child.xeBus || "Chưa phân công xe",
+              pickupPoint: child.tenDiemDon || "Chưa có",
+              pickupTime: child.gioBatDau?.substring(0, 5) || "07:15",
+              pickupLat,
+              pickupLng,
+              driver: child.tenTaiXe || "Chưa có",
+              driverPhone: child.sdtTaiXe || "0901234567",
+              routeName: child.tenTuyen || "Chưa có tuyến",
+            }
+          }),
+        )
 
         setChildren(normalized)
       } else {
-        setError('Không tìm thấy thông tin phụ huynh')
+        setError("Không tìm thấy thông tin phụ huynh")
       }
     } catch (err) {
-      console.error('[ParentDashboard] Load error:', err)
-      setError('Không thể tải dữ liệu. Vui lòng thử lại.')
+      console.error("[ParentDashboard] Load error:", err)
+      setError("Không thể tải dữ liệu. Vui lòng thử lại.")
     } finally {
       setLoading(false)
     }
@@ -61,60 +84,52 @@ const ParentDashboard = () => {
 
   const mapStatus = (backendStatus) => {
     switch (backendStatus) {
-      case 'boarding':
-      case 'on_bus':
-        return 'onboard'
-      case 'arrived':
-        return 'arrived'
+      case "boarding":
+      case "on_bus":
+        return "onboard"
+      case "arrived":
+        return "arrived"
       default:
-        return 'missing_bus'
+        return "missing_bus"
     }
   }
 
-  // --- GIAO DIỆN ĐÃ ĐƯỢC LÀM GỌN ĐỂ CHẠY TRONG LAYOUT ---
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
-      
-      {/* BỎ HEADER GIẢ VÌ LAYOUT ĐÃ CÓ HEADER RỒI */}
+    <div className="parent-app">
+      <Box sx={{ maxWidth: "650px", margin: "0 auto" }}>
+        <p className="greeting">Xin chào, {user?.detail?.hoTen || "Phụ huynh"}</p>
 
-      <p className="greeting">
-        Xin chào, {user?.detail?.hoTen || 'Phụ huynh'}
-      </p>
+        <Typography sx={{ fontSize: "16px", fontWeight: 600, mb: 3, color: "#fff" }}>Con của bạn</Typography>
 
-      <Typography sx={{ fontSize: '1.1rem', fontWeight: 600, mb: 3, color: '#94a3b8' }}>
-        Danh sách học sinh
-      </Typography>
+        {loading && (
+          <Box textAlign="center" py={6}>
+            <CircularProgress size={36} sx={{ color: "#666" }} />
+          </Box>
+        )}
 
-      {loading && (
-        <Box textAlign="center" py={6}>
-          <CircularProgress size={36} sx={{ color: '#666' }} />
-        </Box>
-      )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+        {!loading && children.length === 0 && (
+          <Box className="card" textAlign="center" py={6}>
+            <Typography color="#94a3b8">Chưa có thông tin học sinh được liên kết</Typography>
+          </Box>
+        )}
 
-      {!loading && children.length === 0 && (
-        <Box className="card" textAlign="center" py={6} sx={{ bgcolor: '#111', borderRadius: 2, p: 3, border: '1px solid #333' }}>
-          <Typography color="#94a3b8">
-            Chưa có thông tin học sinh được liên kết
-          </Typography>
-        </Box>
-      )}
-
-      {children.map((child, index) => (
-        <StudentCard
-          key={child.id}
-          student={child}
-          isInitiallyExpanded={index === 0}
-        />
-      ))}
-
-      <Box sx={{ height: 40 }} />
-    </Box>
+        {children.map((child, index) => (
+          <StudentCard
+            key={child.id}
+            student={child}
+            isInitiallyExpanded={index === 0}
+            userId={user?.detail?.idPhuHuynh}
+            userType="PHU_HUYNH"
+          />
+        ))}
+      </Box>
+    </div>
   )
 }
 
